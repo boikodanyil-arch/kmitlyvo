@@ -10,7 +10,7 @@ import { lessonEnd } from './s-home.js';
 function dayHeading(key) {
   const d = fromZoned(key, '12:00');
   const diff = dayDiff(d);
-  const main = diff === 0 ? 'Сьогодні' : diff === 1 ? 'Завтра' : cap(new Intl.DateTimeFormat('uk-UA', { timeZone: 'Europe/Warsaw', weekday: 'long' }).format(d));
+  const main = diff === 0 ? 'Сьогодні' : diff === 1 ? 'Завтра' : cap(new Intl.DateTimeFormat('uk-UA', { timeZone: 'Europe/Kyiv', weekday: 'long' }).format(d));
   const sub = diff <= 1 ? fmtFullDate(d) : fmtDateShort(d);
   return html`<p class="day-list__heading">${main} <small>${sub}</small></p>`;
 }

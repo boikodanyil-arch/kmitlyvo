@@ -9,7 +9,7 @@ import { openPaymentForm, balanceChip, bal, balanceKind, lessonsWord } from '../
 import { openStudentForm } from '../components/student-form.js';
 
 const FILTERS = [['all', 'Усі'], ['debt', 'Борги'], ['low', 'Мало уроків']];
-const cur = () => state.space?.currency || 'zł';
+const cur = () => state.space?.currency || '₴';
 const payDate = (p) => fmtDate(p.paid_on + 'T12:00:00');
 
 export default async function render({ view, query, alive }) {

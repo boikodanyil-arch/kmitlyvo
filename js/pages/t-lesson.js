@@ -115,7 +115,7 @@ export default async function render({ view, params, alive }) {
             </div>
             <dl class="ld-facts">
               <div><dt>${raw(icon('calendar', 'icon--sm'))}Дата</dt><dd>${fmtDate(start)}<small>${fmtWeekday(start)}</small></dd></div>
-              <div><dt>${raw(icon('clock', 'icon--sm'))}Час</dt><dd class="num">${fmtTime(start)}–${fmtTime(end)}<small>за Варшавою</small></dd></div>
+              <div><dt>${raw(icon('clock', 'icon--sm'))}Час</dt><dd class="num">${fmtTime(start)}–${fmtTime(end)}<small>за Києвом</small></dd></div>
               <div><dt>${raw(icon('target', 'icon--sm'))}Тривалість</dt><dd>${lesson.duration_min} хв<small>${lesson.duration_min >= 60 ? `${String(lesson.duration_min / 60).replace('.', ',')} год` : ''}</small></dd></div>
               ${balTxt ? html`<div><dt>${raw(icon('wallet', 'icon--sm'))}Баланс</dt><dd class="${bal.balance < 0 ? 'c-danger' : ''}">${balTxt}<small>${bal.balance < 0 ? 'потрібна оплата' : 'оплачено наперед'}</small></dd></div>` : ''}
             </dl>

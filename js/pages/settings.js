@@ -10,7 +10,7 @@ import * as api from '../api.js';
 import { passwordField, bindPasswordToggles, strengthMeter, bindStrength } from './login.js';
 
 const I = (n, c) => raw(icon(n, c));
-const CURRENCIES = ['zł', '₴', '€', '$', '£'];
+const CURRENCIES = ['₴', 'zł', '€', '$', '£'];
 const SCALES = [[12, '12-бальна'], [10, '10-бальна'], [5, '5-бальна'], [100, '100 балів (відсотки)']];
 
 function roleName() {
@@ -24,7 +24,7 @@ export default async function render({ view }) {
   const sp = state.space || {};
   const canEditSpace = isStaff() && isAdmin();
   const scale = Number(sp.grade_scale || 12);
-  const cur = sp.currency || 'zł';
+  const cur = sp.currency || '₴';
   const curList = CURRENCIES.includes(cur) ? CURRENCIES : [cur, ...CURRENCIES];
 
   view.innerHTML = String(html`

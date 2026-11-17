@@ -5,7 +5,7 @@ import { icon, openModal, toast, toastError, setLoading, fieldError, clearErrors
 import { listStudents, getStudent, addPayment } from '../api.js';
 
 const PRESETS = [1, 4, 8, 12];
-const cur = () => state.space?.currency || 'zł';
+const cur = () => state.space?.currency || '₴';
 
 export const lessonsWord = (n) => plural(Math.abs(n), 'урок', 'уроки', 'уроків');
 

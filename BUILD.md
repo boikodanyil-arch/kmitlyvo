@@ -6,7 +6,7 @@ Beta web platform for English tutors and online language schools. UI language: *
 - **No build step, no npm.** Plain HTML + vanilla JS ES modules + CSS, hosted on GitHub Pages (static). Supabase backend (Postgres + RLS + Storage + one edge function).
 - `supabase-js` is loaded from CDN in `js/supabase.js` (already done). Do not add other dependencies.
 - Hash routing (`#/t/students/123`). Router in `js/router.js`, routes table in `js/main.js` (already defined — do not change route paths).
-- Timezone for all display: **Europe/Warsaw** (use helpers in `js/utils.js`). Store timestamps as ISO/UTC.
+- Timezone for all display: **Europe/Kyiv** (use helpers in `js/utils.js`). Store timestamps as ISO/UTC.
 
 ## Read these first
 1. `design-guide.md` — the design system. Use its classes and markup patterns **exactly**. `showcase.html` shows everything rendered.
@@ -41,7 +41,7 @@ export default async function render({ view, params, query, path, alive }) { ...
 - `assignment_targets(id, assignment_id, student_id, due_at, status assigned|submitted|returned|graded, score, feedback, graded_at)` — one per student per assignment. "Overdue" is computed (`isOverdue`).
 - `submissions(target_id, student_id, attempt_no, text_answer, files jsonb, quiz_answers, quiz_result)` — created only via `api.submitAssignment()` (RPC). Quizzes are auto-graded server-side (status → graded, score on `spaces.grade_scale`, default 12). `quiz_result = {total, correct, per:{[questionId]:{ok, answer}}}`.
 - Files: private bucket `files`. Paths `a/<space>/<assignmentId>/<file>` (teacher attachments) and `s/<space>/<studentId>/<file>` (student submissions). Use `api.uploadFile`, `api.signedUrl`, `api.compressImage`.
-- Grade scale: `state.space.grade_scale` (default 12). Currency: `state.space.currency` (default 'zł').
+- Grade scale: `state.space.grade_scale` (default 12). Currency: `state.space.currency` (default '₴').
 
 ## Shared components (cross-agent contracts)
 Components live in `js/components/`. Each owner implements exactly this signature; other agents may import it.

@@ -103,7 +103,7 @@ export const isOverdue = (t) => t.due_at && ['assigned', 'returned'].includes(t.
 export function initials(name = '') {
   return name.trim().split(/\s+/).slice(0, 2).map((w) => w[0] || '').join('').toUpperCase() || '?';
 }
-export function money(v, cur = 'zł') {
+export function money(v, cur = '₴') {
   const n = Number(v || 0);
   return `${n.toLocaleString('uk-UA', { maximumFractionDigits: 2 })} ${cur}`;
 }

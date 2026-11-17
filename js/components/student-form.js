@@ -121,7 +121,7 @@ export function openStudentForm({ student = null, onSaved } = {}) {
         <input class="input" id="st-min" name="lesson_minutes" type="number" inputmode="numeric" min="15" max="240" step="5" value="${s.lesson_minutes ?? 60}">
       </div>
       <div class="field">
-        <label class="label" for="st-price">Ціна уроку, ${state.space?.currency || 'zł'}</label>
+        <label class="label" for="st-price">Ціна уроку, ${state.space?.currency || '₴'}</label>
         <input class="input" id="st-price" name="lesson_price" type="number" inputmode="decimal" min="0" step="0.01" value="${s.lesson_price || s.lesson_price === 0 ? String(s.lesson_price) : ''}" placeholder="0">
       </div>
     </div>

@@ -12,7 +12,7 @@ import { openLessonForm } from '../components/lesson-form.js';
 
 const TABS = [['overview', 'Огляд'], ['lessons', 'Уроки'], ['tasks', 'Завдання'], ['payments', 'Оплати'], ['progress', 'Прогрес']];
 const STATUS_LABEL = { active: 'Активний', paused: 'Пауза', archived: 'Архів' };
-const cur = () => state.space?.currency || 'zł';
+const cur = () => state.space?.currency || '₴';
 const scale = () => state.space?.grade_scale || 12;
 
 async function firstSubmissions(studentId) {

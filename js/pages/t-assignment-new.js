@@ -487,7 +487,7 @@ Yesterday I ___ to the cinema. | go, *went, gone</pre>
     $('[data-due-fields]').hidden = b.due.preset === 'none';
     dateIn.value = b.due.date; timeIn.value = b.due.time;
     const iso = dueIso();
-    $('[data-due-hint]').textContent = iso ? `${fmtFullDate(iso)}, ${fmtTime(iso)} (час за Варшавою)` : 'Учні бачитимуть завдання без терміну.';
+    $('[data-due-hint]').textContent = iso ? `${fmtFullDate(iso)}, ${fmtTime(iso)} (за київським часом)` : 'Учні бачитимуть завдання без терміну.';
     if (b.tried) fieldError(form, 'due_date', dueError());
     updateSummary();
   }
