@@ -1,0 +1,12 @@
+{
+  "name": "Кмітливо",
+  "short_name": "Кмітливо",
+  "description": "Простір для вчителів і учнів",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F4F6F1",
+  "theme_color": "#1A5244",
+  "lang": "uk",
+  "icons": [{ "src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

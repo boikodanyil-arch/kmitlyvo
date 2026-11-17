@@ -1,0 +1,8 @@
+/* App-level additions on top of styles.css. Keep small; prefer design-system classes. */
+.boot { min-height: 100vh; display: grid; place-items: center; }
+[hidden] { display: none !important; }
+.page-section + .page-section { margin-top: var(--s-6); }
+.code-box { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: var(--fs-2xl); letter-spacing: .18em; font-weight: 700; padding: var(--s-3) var(--s-4); background: var(--surface-2); border-radius: var(--r-sm); text-align: center; user-select: all; }
+.pre-wrap { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+#main:focus { outline: none; }
