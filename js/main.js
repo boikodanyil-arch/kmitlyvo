@@ -20,7 +20,7 @@ const ROUTES = [
   ['/', 'public', 'landing'],
   ['/login', 'guest', 'login'],
   ['/signup', 'guest', 'signup'],
-  ['/join', 'guest', 'join'],
+  ['/join', 'public', 'join'],
   ['/activate', 'guest', 'activate'],
   ['/forgot', 'guest', 'reset'],
   ['/new-password', 'public', 'reset'],

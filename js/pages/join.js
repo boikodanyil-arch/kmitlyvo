@@ -1,5 +1,6 @@
 // #/join?code= — a teacher joins an existing school with the school's invite code.
-import { callSignup } from '../supabase.js';
+import { callSignup, callFunction } from '../supabase.js';
+import { state, loadContext, switchSpace, isStaff } from '../state.js';
 import { html, raw, debounce } from '../utils.js';
 import { icon, fieldError } from '../ui.js';
 import { setTitle } from '../shell.js';
@@ -10,6 +11,7 @@ const emailOk = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
 export default async function render({ view, query }) {
   setTitle('Приєднатися до школи');
+  if (state.user && state.role) return renderLoggedIn({ view, query });
   view.innerHTML = String(html`<div class="auth">
     <div class="auth__panel">
       <form class="auth__form" id="join-form" novalidate>
@@ -111,6 +113,46 @@ export default async function render({ view, query }) {
       const m = err.message || '';
       if (/email вже існує/i.test(m)) { fieldError(form, 'email', 'Акаунт з таким email вже існує. Увійдіть.'); form.email.focus(); return; }
       if (/код школи/i.test(m)) { setState('bad', m); showSchool(''); codeInput.focus(); return; }
+      throw err;
+    }
+  });
+}
+
+// Уже авторизований вчитель вводить лише код школи.
+async function renderLoggedIn({ view, query }) {
+  const staff = isStaff();
+  view.innerHTML = String(html`<div class="auth">
+    <div class="auth__panel">
+      <form class="auth__form" id="join-form" novalidate>
+        ${authTop()}
+        <div class="stack stack--xs">
+          <h1 class="h1">Приєднатися до школи</h1>
+          <p class="muted">${staff ? 'Ви вже увійшли. Введіть код школи від адміністратора — ваші поточні учні й уроки залишаться з вами.' : 'Цей акаунт належить учню, тому приєднатися до школи як вчитель не можна. Вийдіть і зареєструйтесь з іншим email.'}</p>
+        </div>
+        ${staff ? html`<div class="field">
+          <label class="label" for="jn-code">Код школи</label>
+          <input class="input pub-code-input" id="jn-code" name="school_code" required autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="20" placeholder="Наприклад, YXNFHKGA" value="${query.code || ''}">
+        </div>
+        <button class="btn btn--primary btn--lg btn--block" type="submit"><span>Приєднатися</span></button>` : ''}
+        <p class="text-sm muted pub-center"><a class="link-btn" href="#/t">Назад до кабінету</a></p>
+      </form>
+    </div>
+    ${authAside({ quote: 'Уся школа — один спільний розклад.', points: ['Ваші учні та уроки — окремо від колег', 'Домашні з фото й автоперевірка квізів', 'Адміністратор бачить загальну картину'] })}
+  </div>`);
+  const form = view.querySelector('#join-form');
+  if (!staff) return;
+  authSubmit(form, async (v) => {
+    const code = (v.school_code || '').trim().toUpperCase();
+    if (!code) { fieldError(form, 'school_code', 'Введіть код школи'); form.school_code.focus(); return; }
+    try {
+      const res = await callFunction('auth-signup', { action: 'join_school_existing', school_code: code });
+      await loadContext();
+      const m = state.memberships.find((x) => x.space?.name === res.name && x.space?.kind === 'school');
+      if (m) switchSpace(m.space_id);
+      location.hash = '#/t';
+      return true;
+    } catch (err) {
+      if (/код школи/i.test(err.message)) { fieldError(form, 'school_code', err.message); form.school_code.focus(); return; }
       throw err;
     }
   });

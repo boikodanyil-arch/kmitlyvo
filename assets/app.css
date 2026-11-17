@@ -6,3 +6,7 @@
 .pre-wrap { white-space: pre-wrap; overflow-wrap: anywhere; }
 
 #main:focus { outline: none; }
+
+/* відступ під шапкою сторінки (кнопки не липнуть до карток) */
+.page-header { margin-bottom: var(--s-5); }
+.s-task .page-header { margin-bottom: 0; }

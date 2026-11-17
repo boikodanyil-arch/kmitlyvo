@@ -108,7 +108,10 @@ export function openModal({ title, body = '', foot = '', wide = false, onOpen = 
     ${foot ? `<div class="modal__foot">${String(foot)}</div>` : ''}`;
   document.body.appendChild(dialog);
   const close = () => { if (dialog.open) dialog.close(); };
-  dialog.addEventListener('close', () => { onClose?.(); dialog.remove(); });
+  // Закриваємо вікно при зміні сторінки (кнопка «Назад», перехід за посиланням)
+  const onHash = () => close();
+  window.addEventListener('hashchange', onHash);
+  dialog.addEventListener('close', () => { window.removeEventListener('hashchange', onHash); onClose?.(); dialog.remove(); });
   dialog.addEventListener('click', (e) => {
     if (e.target === dialog) close();
     if (e.target.closest('[data-close]')) close();

@@ -78,6 +78,24 @@ Deno.serve(async (req: Request) => {
       return json({ ok: true, login: st.login, password: pwd });
     }
 
+    // ---------- already-registered teacher joins a school (requires caller session) ----------
+    if (action === "join_school_existing") {
+      const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
+      const { data: caller } = await admin.auth.getUser(token);
+      if (!caller?.user) return fail("Увійдіть знову", 401);
+      const code = clean(body.school_code, 20).toUpperCase();
+      const { data: space } = await admin.from("spaces").select("id, name").eq("teacher_invite_code", code).eq("kind", "school").maybeSingle();
+      if (!space) return fail("Код школи не знайдено");
+      // учні не можуть стати вчителями цим шляхом
+      const { data: asStudent } = await admin.from("students").select("id").eq("user_id", caller.user.id).limit(1);
+      if (asStudent && asStudent.length) return fail("Цей акаунт належить учню. Використайте інший email.", 403);
+      const { data: existing } = await admin.from("space_members").select("role").eq("space_id", space.id).eq("user_id", caller.user.id).maybeSingle();
+      if (existing) return json({ ok: true, already: true, name: space.name });
+      const { error } = await admin.from("space_members").insert({ space_id: space.id, user_id: caller.user.id, role: "teacher" });
+      if (error) return fail("Не вдалося приєднатися. Спробуйте ще раз.");
+      return json({ ok: true, name: space.name, space_id: space.id });
+    }
+
     const password = String(body.password ?? "");
     if (password.length < 8) return fail("Пароль має містити щонайменше 8 символів");
 

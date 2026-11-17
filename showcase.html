@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="uk" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Кмітливо — дизайн-система</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<style>
+  /* Showcase-only chrome (not part of the design system) */
+  .sc-top { position: sticky; top: 0; z-index: 25; background: color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+  .sc-top__inner { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); min-height: 64px; }
+  .sc-toc { display: flex; gap: var(--s-1); overflow-x: auto; scrollbar-width: none; padding-bottom: var(--s-2); }
+  .sc-toc a { flex: none; font-size: var(--fs-sm); font-weight: 500; color: var(--muted); text-decoration: none; padding: 6px 10px; border-radius: var(--r-pill); }
+  .sc-toc a:hover { background: var(--surface-2); color: var(--ink); }
+  .sc-main { display: flex; flex-direction: column; gap: var(--s-9); padding-block: var(--s-7) var(--s-10); }
+  .sc-section { display: flex; flex-direction: column; gap: var(--s-5); scroll-margin-top: 120px; }
+  .sc-section > header { display: flex; flex-direction: column; gap: var(--s-1); max-width: 70ch; }
+  .sc-label { font-size: var(--fs-sm); font-weight: 600; color: var(--muted); margin-bottom: var(--s-2); }
+  .sc-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s-3); }
+  .sc-swatch { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; background: var(--surface); }
+  .sc-swatch__chip { height: 72px; }
+  .sc-swatch__meta { padding: var(--s-2) var(--s-3); font-size: var(--fs-xs); line-height: 1.5; }
+  .sc-swatch__meta b { display: block; font-size: var(--fs-sm); }
+  .sc-type > * + * { margin-top: var(--s-3); }
+  .sc-iconset { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: var(--s-2); }
+  .sc-iconset figure { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: var(--s-3) var(--s-1); border-radius: var(--r-sm); background: var(--surface); border: 1px solid var(--line); font-size: 11px; color: var(--muted); margin: 0; }
+  .sc-iconset .icon { color: var(--ink); }
+  .sc-frame { border: 1px solid var(--line-strong); border-radius: var(--r-lg); overflow: hidden; background: var(--paper); box-shadow: var(--shadow-2); }
+  .sc-frame iframe { display: block; width: 100%; border: 0; }
+  .sc-frame__bar { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; background: var(--surface-2); border-bottom: 1px solid var(--line); font-size: 11px; color: var(--muted); }
+  .sc-frame__bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--line-strong); }
+  .sc-phones { display: flex; flex-wrap: wrap; gap: var(--s-6); align-items: flex-start; }
+  .sc-phone { width: 390px; max-width: 100%; border: 10px solid #1B2420; border-radius: 44px; overflow: hidden; box-shadow: var(--shadow-3); background: var(--paper); }
+  .sc-phone iframe { display: block; width: 100%; height: 800px; border: 0; }
+  .sc-demo-fab { position: relative; height: 120px; border: 1px dashed var(--line-strong); border-radius: var(--r-md); overflow: hidden; transform: translateZ(0); }
+  .sc-demo-fab .feedback-fab { position: absolute; }
+  .sc-toast-stack { display: flex; flex-direction: column; gap: var(--s-2); max-width: 400px; }
+  .sc-toast-stack .toast { animation: none; }
+  @media (max-width: 560px) { .sc-top .brand__tag, .sc-top .brand__beta { display: none; } .sc-top .segmented span { padding: 0 10px; } }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#sc-main">Перейти до змісту</a>
+
+<div class="sc-top">
+  <div class="container">
+    <div class="sc-top__inner">
+      <a class="brand" href="#">
+        <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="bm-tile" width="40" height="40" rx="11"/><path class="bm-stroke" d="M14 11v18M14 21.5 22.5 29M14 20l7.2-6.6" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle class="bm-dot" cx="25.6" cy="11.4" r="3.6"/></svg>
+        <span class="brand__text"><span class="brand__name">Кмітливо</span><span class="brand__tag">Дизайн-система</span></span>
+        <span class="brand__beta">бета</span>
+      </a>
+      <div class="cluster">
+        <div class="segmented" role="radiogroup" aria-label="Тема">
+          <label><input type="radio" name="sc-theme" value="light" checked><span><svg class="icon icon--sm" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></svg>Світла</span></label>
+          <label><input type="radio" name="sc-theme" value="dark"><span><svg class="icon icon--sm" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>Темна</span></label>
+        </div>
+      </div>
+    </div>
+    <nav class="sc-toc" aria-label="Розділи">
+      <a href="#brand">Бренд</a><a href="#color">Кольори</a><a href="#type">Типографіка</a><a href="#icons">Іконки</a><a href="#buttons">Кнопки</a><a href="#forms">Форми</a><a href="#cards">Картки</a><a href="#lists">Списки й таблиці</a><a href="#badges">Бейджі</a><a href="#nav">Вкладки</a><a href="#overlays">Вікна й сповіщення</a><a href="#states">Стани</a><a href="#calendar">Календар</a><a href="#quiz">Тест</a><a href="#upload">Завантаження</a><a href="#mockups">Макети</a>
+    </nav>
+  </div>
+</div>
+
+<main id="sc-main" class="container sc-main">
+
+  <!-- BRAND -->
+  <section class="sc-section" id="brand">
+    <header><h1 class="display">Кмітливо</h1><p class="lead">Простір для вчителів і учнів. Крейдяна дошка дає спокій і довіру, жовтий маркер позначає те, що важливо саме зараз: активний розділ, сьогоднішній день, наступний крок.</p></header>
+    <div class="grid" style="--min: 280px">
+      <div class="card stack">
+        <span class="sc-label">Логотип, великий</span>
+        <span class="brand brand--lg">
+          <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="bm-tile" width="40" height="40" rx="11"/><path class="bm-stroke" d="M14 11v18M14 21.5 22.5 29M14 20l7.2-6.6" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle class="bm-dot" cx="25.6" cy="11.4" r="3.6"/></svg>
+          <span class="brand__text"><span class="brand__name">Кмітливо</span><span class="brand__tag">Простір для вчителів і учнів</span></span>
+        </span>
+      </div>
+      <div class="card stack">
+        <span class="sc-label">Знак окремо</span>
+        <div class="cluster" style="--gap: 16px">
+          <svg class="brand__mark" style="width:64px;height:64px" viewBox="0 0 40 40" role="img" aria-label="Знак Кмітливо"><rect class="bm-tile" width="40" height="40" rx="11"/><path class="bm-stroke" d="M14 11v18M14 21.5 22.5 29M14 20l7.2-6.6" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle class="bm-dot" cx="25.6" cy="11.4" r="3.6"/></svg>
+          <svg class="brand__mark" style="width:40px;height:40px" viewBox="0 0 40 40" aria-hidden="true"><rect class="bm-tile" width="40" height="40" rx="11"/><path class="bm-stroke" d="M14 11v18M14 21.5 22.5 29M14 20l7.2-6.6" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle class="bm-dot" cx="25.6" cy="11.4" r="3.6"/></svg>
+          <svg class="brand__mark" style="width:24px;height:24px" viewBox="0 0 40 40" aria-hidden="true"><rect class="bm-tile" width="40" height="40" rx="11"/><path class="bm-stroke" d="M14 11v18M14 21.5 22.5 29M14 20l7.2-6.6" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle class="bm-dot" cx="25.6" cy="11.4" r="3.6"/></svg>
+        </div>
+        <p class="text-sm muted">Літера «к», чия верхня гілка закінчується жовтою крапкою маркера: момент, коли «дійшло».</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COLOR -->
+  <section class="sc-section" id="color">
+    <header><h2 class="h1">Кольори</h2><p class="muted">Усі пари текст/фон проходять WCAG AA (4,5:1). Жовтий маркер ніколи не використовується для тексту на світлому тлі, лише як фон.</p></header>
+    <div class="sc-swatches">
+      <div class="sc-swatch"><div class="sc-swatch__chip" style="background:#1A5244"></div><div class="sc-swatch__meta"><b>Крейда 700</b>--primary · #1A5244</div></div>
+      <div class="sc-swatch"><div class="sc-swatch__chip" style="background:#FFD84A"></div><div class="sc-swatch__meta"><b>Маркер</b>--hl · #FFD84A</div></div>
+      <div class="sc-swatch"><div class="sc-swatch__chip" style="background:#F4F6F1"></div><div class="sc-swatch__meta"><b>Папір</b>--paper · #F4F6F1</div></div>
+      <div class="sc-swatch"><div class="sc-swatch__chip" style="background:#16201C"></div><div class="sc-swatch__meta"><b>Чорнило</b>--ink · #16201C</div></div>
+      <div class="sc-swatch"><div class="sc-swatch__chip" style="background:#5A6761"></div><div class="sc-swatch__meta"><b>Приглушений</b>--muted · #5A6761</div></div>
+      <div class="sc-swatch"><div class="sc-swatch__chip" style="background:#D9DFD5"></div><div class="sc-swatch__meta"><b>Лінія</b>--line · #D9DFD5</div></div>
+    </div>
+    <div class="sc-swatches">
+      <div class="sc-swatch"><div class="sc-swatch__chip" style="background:var(--success-soft);color:var(--success);display:grid;place-items:center;font-weight:700">Успіх</div><div class="sc-swatch__meta"><b>--success</b>#1D7238 / #E2F3E6</div></div>
+      <div class="sc-swatch"><div class="sc-swatch__chip" style="background:var(--warning-soft);color:var(--warning);display:grid;place-items:center;font-weight:700">Увага</div><div class="sc-swatch__meta"><b>--warning</b>#8A5300 / #FFF1D1</div></div>
+      <div class="sc-swatch"><div class="sc-swatch__chip" style="background:var(--danger-soft);color:var(--danger);display:grid;place-items:center;font-weight:700">Помилка</div><div class="sc-swatch__meta"><b>--danger</b>#B3261E / #FCE9E7</div></div>
+      <div class="sc-swatch"><div class="sc-swatch__chip" style="background:var(--info-soft);color:var(--info);display:grid;place-items:center;font-weight:700">Інфо</div><div class="sc-swatch__meta"><b>--info</b>#2552B5 / #E6EDFB</div></div>
+    </div>
+    <div>
+      <p class="sc-label">Рівні CEFR: від зеленого через синій до сливового. Риски в бейджі підказують ступінь (A, B, C), тож значення не тримається лише на кольорі.</p>
+      <div class="cluster"><span class="level level--a1">A1</span><span class="level level--a2">A2</span><span class="level level--b1">B1</span><span class="level level--b2">B2</span><span class="level level--c1">C1</span><span class="level level--c2">C2</span></div>
+    </div>
+  </section>
+
+  <!-- TYPE -->
+  <section class="sc-section" id="type">
+    <header><h2 class="h1">Типографіка</h2><p class="muted">Unbounded для заголовків сторінок, чисел і логотипа. Onest для всього інтерфейсу, основний текст 16 px.</p></header>
+    <div class="card sc-type">
+      <p class="display">Present Perfect без страху</p>
+      <p class="h1">Домашні завдання</p>
+      <p class="h2">Чекає на перевірку</p>
+      <p class="h3">Урок з Марією К.</p>
+      <p class="h4">Підзаголовок картки</p>
+      <p class="lead">Учні бачать розклад, завдання й прогрес на телефоні. Викладач перевіряє роботи там, де йому зручно.</p>
+      <p class="prose">Основний текст: здайте роботу до четверга, щоб я встигла переглянути її перед уроком. Якщо щось незрозуміло, напишіть коментар прямо в завданні.</p>
+      <p class="text-sm muted">Дрібний текст 14 px для метаданих: 17 листопада, 45 хв</p>
+      <p class="text-xs muted">Підпис 12 px</p>
+      <p>Числа таблиць вирівнюються: <span class="num fw-600">1 250 ₴</span>, <span class="num fw-600">12 400 ₴</span>. Клавіша <kbd>Esc</kbd> закриває вікно.</p>
+    </div>
+  </section>
+
+  <!-- ICONS -->
+  <section class="sc-section" id="icons">
+    <header><h2 class="h1">Іконки</h2><p class="muted">assets/icons.js: 24 px, контур 1,75, колір від currentColor. <code>icon('calendar')</code> повертає рядок SVG.</p></header>
+    <div class="sc-iconset" id="sc-iconset"><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3.5 10.5 12 3.8l8.5 6.7"/><path d="M5.5 9v10.2c0 .4.4.8.8.8H10v-5.5h4V20h3.7c.4 0 .8-.4.8-.8V9"/></svg><figcaption>home</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3.5"/><path d="M2.8 19.5c.6-3.3 3.1-5.2 6.2-5.2s5.6 1.9 6.2 5.2"/><path d="M15.5 4.8a3.4 3.4 0 0 1 0 6.4"/><path d="M17.6 14.6c2 .6 3.3 2.3 3.7 4.9"/></svg><figcaption>users</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c.8-3.8 3.8-6 7.5-6s6.7 2.2 7.5 6"/></svg><figcaption>user</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h2M14 14h2M8 17h2"/></svg><figcaption>calendar</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11c.6 0 1 .4 1 1v15c0-.8-.7-1.5-1.5-1.5h-5C4.7 18.5 4 17.8 4 17z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H13c-.6 0-1 .4-1 1v15c0-.8.7-1.5 1.5-1.5h5c.8 0 1.5-.7 1.5-1.5z"/></svg><figcaption>book</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="4.5" width="14" height="16.5" rx="2.5"/><path d="M9 4.5V4c0-.6.4-1 1-1h4c.6 0 1 .4 1 1v.5c0 .6-.4 1-1 1h-4c-.6 0-1-.4-1-1z"/><path d="m9 13 2 2 4-4.5"/></svg><figcaption>clipboard</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3.5 13.5 6 5.6c.2-.6.7-1.1 1.4-1.1h9.2c.7 0 1.2.5 1.4 1.1l2.5 7.9"/><path d="M3.5 13.5V18c0 1.1.9 2 2 2h13c1.1 0 2-.9 2-2v-4.5H15.5a3.5 3.5 0 0 1-7 0z"/></svg><figcaption>inbox</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 7.5V6c0-1.1-.9-2-2-2H5.5A2 2 0 0 0 3.5 6v12c0 1.1.9 2 2 2h13c1.1 0 2-.9 2-2v-8.5c0-1.1-.9-2-2-2H5.5"/><circle cx="16.5" cy="14" r="1.2" fill="currentColor" stroke="none"/></svg><figcaption>wallet</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M19.4 14.6c.2-.5.3-1.1.3-1.6v-2c0-.5-.1-1.1-.3-1.6l1.6-1.5-2-3.4-2.1.7a7.7 7.7 0 0 0-2.7-1.6L13.8 1.5h-3.6l-.4 2.1a7.7 7.7 0 0 0-2.7 1.6l-2.1-.7-2 3.4 1.6 1.5c-.2.5-.3 1.1-.3 1.6v2c0 .5.1 1.1.3 1.6L3 16.1l2 3.4 2.1-.7c.8.7 1.7 1.2 2.7 1.6l.4 2.1h3.6l.4-2.1c1-.4 1.9-.9 2.7-1.6l2.1.7 2-3.4z"/></svg><figcaption>settings</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 4.5h3.5c1.1 0 2 .9 2 2v11c0 1.1-.9 2-2 2H14"/><path d="M10 8l-4 4 4 4M6 12h10"/></svg><figcaption>logout</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h10"/></svg><figcaption>menu</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v5c1.5 1.6 3.4 2.5 5.5 2.5s4-.9 5.5-2.5v-5"/><path d="M21.5 9v5.5"/></svg><figcaption>school</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 4v16h16"/><path d="M8 15v-3M12 15V8M16 15v-5"/></svg><figcaption>chart</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg><figcaption>grid</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg><figcaption>plus</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/></svg><figcaption>minus</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg><figcaption>search</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 6h16M7 12h10M10 18h4"/></svg><figcaption>filter</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 12.5 9.5 17.5 19.5 7"/></svg><figcaption>check</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="m8.3 12.3 2.6 2.6 5-5.3"/></svg><figcaption>checkCircle</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg><figcaption>x</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="m9 9 6 6M15 9l-6 6"/></svg><figcaption>xCircle</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg><figcaption>edit</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h16"/><path d="M9.5 7V5c0-.6.4-1 1-1h3c.6 0 1 .4 1 1v2"/><path d="M6 7l.9 12.1c.1 1 .9 1.9 2 1.9h6.2c1.1 0 1.9-.8 2-1.9L18 7"/><path d="M10 11v6M14 11v6"/></svg><figcaption>trash</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2.5"/><path d="M15.5 8.5V6c0-1.1-.9-2-2-2H6c-1.1 0-2 .9-2 2v7.5c0 1.1.9 2 2 2h2.5"/></svg><figcaption>copy</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><figcaption>eye</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10.6 5.6c.5-.1.9-.1 1.4-.1 6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-2.4 3.2M6.6 6.6C3.9 8.4 2.5 12 2.5 12S6 18.5 12 18.5c1.9 0 3.5-.6 4.9-1.5"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2M3 3l18 18"/></svg><figcaption>eyeOff</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 15.5V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4 15v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3"/></svg><figcaption>upload</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 4v11.5M7.5 11 12 15.5l4.5-4.5"/><path d="M4 15v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3"/></svg><figcaption>download</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 8.5c0-1.1.9-2 2-2h1.8l1.4-2h5.6l1.4 2H18c1.1 0 2 .9 2 2V18c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2z"/><circle cx="12" cy="13" r="3.5"/></svg><figcaption>camera</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="9.5" r="1.6"/><path d="m20.5 15.5-4.6-4.6a1 1 0 0 0-1.4 0L6.5 19.5"/></svg><figcaption>image</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><figcaption>link</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 3.5H7c-1.1 0-2 .9-2 2v13c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M9 13h6M9 16.5h4"/></svg><figcaption>file</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m20 11.5-7.8 7.8a5 5 0 0 1-7-7l8.1-8.2a3.3 3.3 0 0 1 4.7 4.7l-8 8.1a1.7 1.7 0 0 1-2.4-2.4l7.4-7.4"/></svg><figcaption>paperclip</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.5 3.5 10 14"/><path d="m20.5 3.5-6.5 17-4-6.5-6.5-4z"/></svg><figcaption>send</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="6" cy="12" r="2.5"/><circle cx="17.5" cy="5.5" r="2.5"/><circle cx="17.5" cy="18.5" r="2.5"/><path d="m8.2 10.8 7.1-4M8.2 13.2l7.1 4"/></svg><figcaption>share</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="5.5" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg><figcaption>more</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 11.5A8 8 0 0 0 5.6 7M4 12.5A8 8 0 0 0 18.4 17"/><path d="M5 3.5V7.5h4M19 20.5v-4h-4"/></svg><figcaption>refresh</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v4c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V8c0-1.1.9-2 2-2h4"/></svg><figcaption>external</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m14.5 6-6 6 6 6"/></svg><figcaption>chevronLeft</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg><figcaption>chevronRight</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9.5 6 6 6-6"/></svg><figcaption>chevronDown</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 14.5 6-6 6 6"/></svg><figcaption>chevronUp</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 12H5M11 6l-6 6 6 6"/></svg><figcaption>arrowLeft</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg><figcaption>arrowRight</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><figcaption>clock</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="6" width="12.5" height="12" rx="2.5"/><path d="m15.5 10.5 5.5-3v9l-5.5-3"/></svg><figcaption>video</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12 3.8 2.5 5.2 5.6.7-4.1 3.9 1 5.6-5-2.7-5 2.7 1-5.6-4.1-3.9 5.6-.7z"/></svg><figcaption>star</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 4.5c.6 3.5 2 5 5.5 5.5-3.5.6-4.9 2-5.5 5.5-.6-3.5-2-4.9-5.5-5.5 3.5-.5 4.9-2 5.5-5.5z"/><path d="M17.5 14c.3 1.8 1 2.5 2.5 2.8-1.5.3-2.2 1-2.5 2.7-.3-1.7-1-2.4-2.5-2.7 1.5-.3 2.2-1 2.5-2.8z"/></svg><figcaption>sparkles</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 12.5c0 3.9-3.6 7-8 7-1.2 0-2.3-.2-3.3-.6L4 20l1.2-3.6A6.6 6.6 0 0 1 4 12.5c0-3.9 3.6-7 8-7s8 3.1 8 7z"/></svg><figcaption>message</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 5.5c0-1.1.9-2 2-2h11c1.1 0 2 .9 2 2v9c0 1.1-.9 2-2 2H10l-4.5 4v-4h-1z"/><path d="M8.5 8.5h7M8.5 11.5h4.5"/></svg><figcaption>feedback</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><figcaption>bell</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10.3 4.4 2.9 17.3c-.8 1.3.2 3 1.7 3h14.8c1.5 0 2.5-1.7 1.7-3L13.7 4.4c-.8-1.3-2.6-1.3-3.4 0z"/><path d="M12 9.5v4"/><circle cx="12" cy="16.8" r=".9" fill="currentColor" stroke="none"/></svg><figcaption>alert</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".9" fill="currentColor" stroke="none"/></svg><figcaption>info</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.7"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></svg><figcaption>help</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg><figcaption>lock</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg><figcaption>mail</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg><figcaption>phone</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.3 2.4 3.5 5.2 3.5 8.5s-1.2 6.1-3.5 8.5c-2.3-2.4-3.5-5.2-3.5-8.5S9.7 5.9 12 3.5z"/></svg><figcaption>globe</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v2.5"/></svg><figcaption>mic</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3.5" y="14" width="4" height="6.5" rx="1.5"/><rect x="16.5" y="14" width="4" height="6.5" rx="1.5"/></svg><figcaption>headphones</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg><figcaption>target</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7.5 4.5h9v5a4.5 4.5 0 0 1-9 0z"/><path d="M7.5 6.5H4.5c0 2.5 1.2 4 3.3 4.3M16.5 6.5h3c0 2.5-1.2 4-3.3 4.3"/><path d="M12 14v3.5M8.5 20.5h7M9.5 20.5c0-1.7 1.1-3 2.5-3s2.5 1.3 2.5 3"/></svg><figcaption>trophy</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 21c3.6 0 6-2.4 6-5.8 0-3.9-3.3-6-4.3-9.7-2.4 1.6-3.2 3.7-3.2 5.5-1-.6-1.8-1.7-2-3C6.8 9.6 6 11.8 6 15.2 6 18.6 8.4 21 12 21z"/></svg><figcaption>flame</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18M7 15h3"/></svg><figcaption>card</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><ellipse cx="9" cy="7" rx="5.5" ry="2.5"/><path d="M3.5 7v4c0 1.4 2.5 2.5 5.5 2.5s5.5-1.1 5.5-2.5V7"/><path d="M9.5 16.4c.6 1.2 2.8 2.1 5.5 2.1 3 0 5.5-1.1 5.5-2.5v-4c0-1.2-1.8-2.2-4.3-2.4"/></svg><figcaption>coins</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></svg><figcaption>sun</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><figcaption>moon</figcaption></figure><figure><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg><figcaption>dot</figcaption></figure></div>
+  </section>
+
+  <!-- BUTTONS -->
+  <section class="sc-section" id="buttons">
+    <header><h2 class="h1">Кнопки</h2><p class="muted">Мінімальна висота 44 px. Одна основна дія на екран.</p></header>
+    <div class="card stack stack--lg">
+      <div class="cluster">
+        <button class="btn btn--primary"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg>Новий урок</button>
+        <button class="btn btn--secondary">Скасувати</button>
+        <button class="btn btn--soft"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.5 3.5 10 14"/><path d="m20.5 3.5-6.5 17-4-6.5-6.5-4z"/></svg>Призначити</button>
+        <button class="btn btn--ghost">Пропустити</button>
+        <button class="btn btn--danger"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h16"/><path d="M9.5 7V5c0-.6.4-1 1-1h3c.6 0 1 .4 1 1v2"/><path d="M6 7l.9 12.1c.1 1 .9 1.9 2 1.9h6.2c1.1 0 1.9-.8 2-1.9L18 7"/><path d="M10 11v6M14 11v6"/></svg>Видалити учня</button>
+        <button class="btn btn--danger-ghost">Скасувати урок</button>
+      </div>
+      <div class="cluster">
+        <button class="btn btn--primary btn--lg">Почати урок</button>
+        <button class="btn btn--primary">Зберегти</button>
+        <button class="btn btn--primary btn--sm">Оцінити</button>
+        <button class="btn btn--secondary btn--sm"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2.5"/><path d="M15.5 8.5V6c0-1.1-.9-2-2-2H6c-1.1 0-2 .9-2 2v7.5c0 1.1.9 2 2 2h2.5"/></svg>Копіювати посилання</button>
+      </div>
+      <div class="cluster">
+        <button class="btn btn--secondary btn--icon" aria-label="Редагувати"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg></button>
+        <button class="btn btn--ghost btn--icon" aria-label="Більше дій"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="5.5" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg></button>
+        <button class="btn btn--ghost btn--icon btn--sm" aria-label="Закрити"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+        <button class="btn btn--primary btn--loading" aria-busy="true"><span>Зберігаємо</span></button>
+        <button class="btn btn--primary" disabled>Недоступно</button>
+        <a class="link-btn" href="#">Усі завдання<svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FORMS -->
+  <section class="sc-section" id="forms">
+    <header><h2 class="h1">Форми</h2><p class="muted">Підпис над полем, підказка під ним, помилка пояснює, що виправити.</p></header>
+    <div class="grid-2">
+      <form class="card form" onsubmit="return false">
+        <div class="field">
+          <label class="label" for="f-name">Ім’я та прізвище учня</label>
+          <input class="input" id="f-name" value="Марія Коваленко">
+        </div>
+        <div class="form__row">
+          <div class="field">
+            <label class="label" for="f-level">Рівень</label>
+            <select class="select" id="f-level"><option>A2</option><option selected>B1</option><option>B2</option></select>
+          </div>
+          <div class="field">
+            <label class="label" for="f-price">Ціна уроку, ₴</label>
+            <input class="input num" id="f-price" inputmode="numeric" value="450">
+          </div>
+        </div>
+        <div class="field field--error">
+          <label class="label" for="f-email">Email для запрошення</label>
+          <input class="input" id="f-email" type="email" value="maria.k@" aria-invalid="true" aria-describedby="f-email-err">
+          <p class="error-text" id="f-email-err"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10.3 4.4 2.9 17.3c-.8 1.3.2 3 1.7 3h14.8c1.5 0 2.5-1.7 1.7-3L13.7 4.4c-.8-1.3-2.6-1.3-3.4 0z"/><path d="M12 9.5v4"/><circle cx="12" cy="16.8" r=".9" fill="currentColor" stroke="none"/></svg>Додайте домен після @, наприклад maria.k@gmail.com</p>
+        </div>
+        <div class="field">
+          <label class="label" for="f-goal">Мета навчання <span class="label__opt">(необов’язково)</span></label>
+          <textarea class="textarea" id="f-goal" aria-describedby="f-goal-hint" placeholder="Наприклад: співбесіда англійською в березні"></textarea>
+          <p class="hint" id="f-goal-hint">Учень бачитиме це у своєму профілі.</p>
+        </div>
+        <div class="form__actions"><button class="btn btn--ghost" type="button">Скасувати</button><button class="btn btn--primary">Додати учня</button></div>
+      </form>
+      <div class="card form">
+        <div class="field">
+          <label class="label" for="f-search">Пошук</label>
+          <div class="input-wrap"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg><input class="input" id="f-search" type="search" placeholder="Учень, тема або група"></div>
+        </div>
+        <div class="field">
+          <label class="label" for="f-link">Посилання на урок</label>
+          <div class="input-wrap input-wrap--action"><input class="input" id="f-link" value="https://meet.google.com/kmt-abcd-xyz" readonly><button class="btn btn--ghost btn--icon input-wrap__action" type="button" aria-label="Копіювати посилання"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2.5"/><path d="M15.5 8.5V6c0-1.1-.9-2-2-2H6c-1.1 0-2 .9-2 2v7.5c0 1.1.9 2 2 2h2.5"/></svg></button></div>
+        </div>
+        <fieldset class="fieldset">
+          <legend>Формат уроку</legend>
+          <label class="check"><input type="radio" name="fmt" checked><span class="check__body">Індивідуальний<span class="check__hint">Один учень, 45 або 60 хвилин</span></span></label>
+          <label class="check"><input type="radio" name="fmt"><span class="check__body">Груповий<span class="check__hint">До 6 учнів</span></span></label>
+        </fieldset>
+        <fieldset class="fieldset">
+          <legend>Що надіслати учню</legend>
+          <label class="check"><input type="checkbox" checked><span class="check__body">Нагадування за годину до уроку</span></label>
+          <label class="check"><input type="checkbox"><span class="check__body">Підсумок уроку на email</span></label>
+          <label class="check"><input type="checkbox" disabled><span class="check__body">SMS <span class="check__hint">Скоро</span></span></label>
+        </fieldset>
+        <label class="switch"><span>Приймати домашні після дедлайну</span><input type="checkbox" role="switch" checked></label>
+        <label class="switch"><span>Показувати учню оцінку одразу</span><input type="checkbox" role="switch"></label>
+      </div>
+    </div>
+  </section>
+
+  <!-- CARDS -->
+  <section class="sc-section" id="cards">
+    <header><h2 class="h1">Картки та показники</h2><p class="muted">Звичайна картка має рамку без тіні. Тінь лише для того, що «піднято». Темно-зелена картка одна на сторінку: наступна дія.</p></header>
+    <div class="grid-4">
+      <div class="stat"><span class="stat__label"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h2M14 14h2M8 17h2"/></svg>Уроків цього тижня</span><span class="stat__value">18</span><span class="stat__delta stat__delta--up"><svg class="icon icon--sm" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 14.5 6-6 6 6"/></svg>на 3 більше</span></div>
+      <div class="stat stat--attention"><span class="stat__label"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3.5 13.5 6 5.6c.2-.6.7-1.1 1.4-1.1h9.2c.7 0 1.2.5 1.4 1.1l2.5 7.9"/><path d="M3.5 13.5V18c0 1.1.9 2 2 2h13c1.1 0 2-.9 2-2v-4.5H15.5a3.5 3.5 0 0 1-7 0z"/></svg>Чекає на перевірку</span><span class="stat__value">7</span><span class="text-sm">2 прострочені</span></div>
+      <div class="stat"><span class="stat__label"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3.5"/><path d="M2.8 19.5c.6-3.3 3.1-5.2 6.2-5.2s5.6 1.9 6.2 5.2"/><path d="M15.5 4.8a3.4 3.4 0 0 1 0 6.4"/><path d="M17.6 14.6c2 .6 3.3 2.3 3.7 4.9"/></svg>Активні учні</span><span class="stat__value">15</span><span class="text-sm muted">з них 3 у групі</span></div>
+      <div class="stat"><span class="stat__label"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 7.5V6c0-1.1-.9-2-2-2H5.5A2 2 0 0 0 3.5 6v12c0 1.1.9 2 2 2h13c1.1 0 2-.9 2-2v-8.5c0-1.1-.9-2-2-2H5.5"/><circle cx="16.5" cy="14" r="1.2" fill="currentColor" stroke="none"/></svg>Оплачено в листопаді</span><span class="stat__value num">12 400<span class="stat__unit">₴</span></span><span class="stat__delta stat__delta--down"><svg class="icon icon--sm" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9.5 6 6 6-6"/></svg>2 борги</span></div>
+    </div>
+    <div class="grid" style="--min: 300px">
+      <div class="card card--focus stack">
+        <div class="cluster cluster--between"><span class="text-sm muted">Наступний урок, через 25 хв</span><span class="level level--b1">B1</span></div>
+        <div class="row"><span class="avatar avatar--3">МК</span><div class="grow"><p class="h3">Марія Коваленко</p><p class="text-sm muted">Present Perfect vs Past Simple</p></div></div>
+        <div class="cluster"><button class="btn btn--primary"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="6" width="12.5" height="12" rx="2.5"/><path d="m15.5 10.5 5.5-3v9l-5.5-3"/></svg>Почати урок</button><button class="btn btn--ghost">План уроку</button></div>
+      </div>
+      <div class="card">
+        <div class="card__head"><div><p class="card__title">Група «Speaking Club»</p><p class="card__sub">Щочетверга о 19:00</p></div><span class="level level--b2">B2</span></div>
+        <div class="avatar-stack"><span class="avatar avatar--sm avatar--1">ОП</span><span class="avatar avatar--sm avatar--2">ДС</span><span class="avatar avatar--sm avatar--4">ІЛ</span><span class="avatar avatar--sm avatar--5">+2</span></div>
+        <div class="card__foot"><span class="text-sm muted">5 учнів</span><a class="link-btn" href="#">Відкрити<svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></a></div>
+      </div>
+      <a class="card card--interactive stack stack--sm" href="#">
+        <div class="cluster cluster--between"><span class="status status--submitted">Здано</span><span class="text-sm muted">вчора, 21:40</span></div>
+        <p class="card__title">Essay: My best trip</p>
+        <p class="text-sm muted">Андрій С. додав 2 фото й аудіо 1:12</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- LISTS & TABLE -->
+  <section class="sc-section" id="lists">
+    <header><h2 class="h1">Списки й таблиці</h2><p class="muted">Таблиця з класом <code>table--stack</code> на вузькому екрані перетворюється на картки (зменште вікно).</p></header>
+    <div class="grid-2">
+      <ul class="list list--card">
+        <li><a class="list-row" href="#"><span class="avatar avatar--3">МК</span><span class="list-row__body"><span class="list-row__title">Марія К.</span><span class="list-row__meta"><span class="level level--b1">B1</span><span><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Сьогодні, 10:00</span></span></span><span class="list-row__trail"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></span></a></li>
+        <li><a class="list-row" href="#"><span class="avatar avatar--2">АС</span><span class="list-row__body"><span class="list-row__title">Андрій Савчук</span><span class="list-row__meta"><span class="level level--a2">A2</span><span><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Ср, 18:30</span></span></span><span class="list-row__trail"><span class="status status--overdue">Прострочено</span></span></a></li>
+        <li><a class="list-row" href="#"><span class="avatar avatar--4">ОП</span><span class="list-row__body"><span class="list-row__title">Олена Петренко</span><span class="list-row__meta"><span class="level level--c1">C1</span><span>IELTS у грудні</span></span></span><span class="list-row__trail"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></span></a></li>
+      </ul>
+      <ul class="list list--card">
+        <li><a class="list-row" href="#"><span class="list-row__lead"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="4.5" width="14" height="16.5" rx="2.5"/><path d="M9 4.5V4c0-.6.4-1 1-1h4c.6 0 1 .4 1 1v.5c0 .6-.4 1-1 1h-4c-.6 0-1-.4-1-1z"/><path d="m9 13 2 2 4-4.5"/></svg></span><span class="list-row__body"><span class="list-row__title">Irregular verbs, part 2</span><span class="list-row__meta"><span>до 20 листопада</span><span>12 учнів</span></span></span><span class="list-row__trail"><span class="status status--assigned">Призначено</span></span></a></li>
+        <li><a class="list-row" href="#"><span class="list-row__lead"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v2.5"/></svg></span><span class="list-row__body"><span class="list-row__title">Speaking: describe your room</span><span class="list-row__meta"><span>Марія К.</span><span>аудіо 0:58</span></span></span><span class="list-row__trail"><span class="status status--returned">Повернуто</span></span></a></li>
+        <li><a class="list-row" href="#"><span class="list-row__lead"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 3.5H7c-1.1 0-2 .9-2 2v13c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M9 13h6M9 16.5h4"/></svg></span><span class="list-row__body"><span class="list-row__title">Present Perfect: вправи 1–6</span><span class="list-row__meta"><span>Олена П.</span><span>11 / 12</span></span></span><span class="list-row__trail"><span class="status status--graded">Оцінено</span></span></a></li>
+      </ul>
+    </div>
+    <div class="table-wrap table-wrap--stack">
+      <table class="table table--stack">
+        <thead><tr><th>Учень</th><th>Рівень</th><th>Наступний урок</th><th>Домашнє</th><th class="num">Баланс</th><th class="table__actions"><span class="sr-only">Дії</span></th></tr></thead>
+        <tbody>
+          <tr><td class="table__primary"><div class="row"><span class="avatar avatar--sm avatar--3">МК</span><span class="fw-600">Марія Коваленко</span></div></td><td data-label="Рівень"><span class="level level--b1">B1</span></td><td data-label="Наступний урок">Сьогодні, 10:00</td><td data-label="Домашнє"><span class="status status--submitted">Здано</span></td><td data-label="Баланс" class="num">+900 ₴</td><td class="table__actions"><button class="btn btn--ghost btn--icon btn--sm" aria-label="Дії для Марії Коваленко"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="5.5" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg></button></td></tr>
+          <tr><td class="table__primary"><div class="row"><span class="avatar avatar--sm avatar--2">АС</span><span class="fw-600">Андрій Савчук</span></div></td><td data-label="Рівень"><span class="level level--a2">A2</span></td><td data-label="Наступний урок">Ср, 18:30</td><td data-label="Домашнє"><span class="status status--overdue">Прострочено</span></td><td data-label="Баланс" class="num c-danger">−450 ₴</td><td class="table__actions"><button class="btn btn--ghost btn--icon btn--sm" aria-label="Дії для Андрія Савчука"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="5.5" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg></button></td></tr>
+          <tr><td class="table__primary"><div class="row"><span class="avatar avatar--sm avatar--4">ОП</span><span class="fw-600">Олена Петренко</span></div></td><td data-label="Рівень"><span class="level level--c1">C1</span></td><td data-label="Наступний урок">Чт, 08:00</td><td data-label="Домашнє"><span class="status status--graded">Оцінено</span></td><td data-label="Баланс" class="num">0 ₴</td><td class="table__actions"><button class="btn btn--ghost btn--icon btn--sm" aria-label="Дії для Олени Петренко"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="5.5" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg></button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- BADGES -->
+  <section class="sc-section" id="badges">
+    <header><h2 class="h1">Бейджі, статуси, чіпи, аватари</h2><p class="muted">Кожен статус має свою форму крапки, тому його видно навіть без кольору.</p></header>
+    <div class="card stack stack--lg">
+      <div><p class="sc-label">Домашні завдання</p><div class="cluster"><span class="status status--assigned">Призначено</span><span class="status status--submitted">Здано</span><span class="status status--returned">Повернуто</span><span class="status status--graded">Оцінено</span><span class="status status--overdue">Прострочено</span></div></div>
+      <div><p class="sc-label">Уроки</p><div class="cluster"><span class="status status--scheduled">Заплановано</span><span class="status status--done">Проведено</span><span class="status status--cancelled">Скасовано</span><span class="status status--no_show">Неявка</span></div></div>
+      <div><p class="sc-label">Бейджі</p><div class="cluster"><span class="badge">Чернетка</span><span class="badge badge--hl">Нове</span><span class="badge badge--success"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 12.5 9.5 17.5 19.5 7"/></svg>Оплачено</span><span class="badge badge--warning">Борг 450 ₴</span><span class="badge badge--danger">Заблоковано</span><span class="badge badge--info">Група</span><span class="badge badge--outline">45 хв</span><span class="badge badge--lg badge--hl">10 / 12</span></div></div>
+      <div><p class="sc-label">Чіпи-фільтри</p><div class="chips"><button class="chip" aria-pressed="true">Усі <span class="chip__count">24</span></button><button class="chip" aria-pressed="false">На перевірці <span class="chip__count">7</span></button><button class="chip" aria-pressed="false">Прострочені <span class="chip__count">2</span></button><span class="chip">B1<button class="chip__remove" aria-label="Прибрати фільтр B1"><svg class="icon icon--sm" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span></div></div>
+      <div><p class="sc-label">Аватари з ініціалами</p><div class="cluster" style="--gap:12px"><span class="avatar avatar--xs avatar--1">ОК</span><span class="avatar avatar--sm avatar--2">АС</span><span class="avatar avatar--3">МК</span><span class="avatar avatar--lg avatar--4">ОП<span class="avatar__presence" aria-label="онлайн"></span></span><span class="avatar avatar--xl avatar--5">ДІ</span><span class="avatar avatar--6">ВЛ</span></div></div>
+    </div>
+  </section>
+
+  <!-- TABS -->
+  <section class="sc-section" id="nav">
+    <header><h2 class="h1">Вкладки та перемикач</h2></header>
+    <div class="card stack stack--lg">
+      <div class="tabs" role="tablist" aria-label="Домашні завдання">
+        <button class="tab" role="tab" aria-selected="true">На перевірці <span class="tab__count">7</span></button>
+        <button class="tab" role="tab" aria-selected="false">Призначені <span class="tab__count">12</span></button>
+        <button class="tab" role="tab" aria-selected="false">Оцінені</button>
+        <button class="tab" role="tab" aria-selected="false">Архів</button>
+      </div>
+      <div class="cluster">
+        <div class="segmented" role="radiogroup" aria-label="Вигляд розкладу">
+          <label><input type="radio" name="seg1" checked><span>День</span></label>
+          <label><input type="radio" name="seg1"><span>Тиждень</span></label>
+          <label><input type="radio" name="seg1"><span>Місяць</span></label>
+        </div>
+        <div class="segmented" role="radiogroup" aria-label="Тривалість">
+          <label><input type="radio" name="seg2"><span>30 хв</span></label>
+          <label><input type="radio" name="seg2" checked><span>45 хв</span></label>
+          <label><input type="radio" name="seg2"><span>60 хв</span></label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OVERLAYS -->
+  <section class="sc-section" id="overlays">
+    <header><h2 class="h1">Вікна й сповіщення</h2><p class="muted">Нативний <code>&lt;dialog&gt;</code>. На телефоні вікно автоматично стає нижньою шторкою.</p></header>
+    <div class="cluster">
+      <button class="btn btn--primary" type="button" data-open="dlg-assign">Відкрити вікно</button>
+      <button class="btn btn--secondary" type="button" data-toast="success">Показати сповіщення</button>
+      <button class="btn btn--secondary" type="button" data-toast="error">Сповіщення з помилкою</button>
+    </div>
+    <div class="grid-2">
+      <div class="modal modal--static">
+        <div class="modal__head"><h3 class="modal__title">Скасувати урок?</h3><button class="btn btn--ghost btn--icon modal__close" aria-label="Закрити"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+        <div class="modal__body"><p>Урок з Марією К. у вівторок о 10:00 буде скасовано. Учениця отримає сповіщення, оплата повернеться на баланс.</p></div>
+        <div class="modal__foot"><button class="btn btn--secondary">Залишити урок</button><button class="btn btn--danger">Скасувати урок</button></div>
+      </div>
+      <div class="stack">
+        <div class="sc-toast-stack">
+          <div class="toast toast--success" role="status"><svg class="icon toast__icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="m8.3 12.3 2.6 2.6 5-5.3"/></svg><div class="toast__body"><p class="toast__title">Завдання призначено</p><p>12 учнів отримали сповіщення</p></div><button class="toast__action">Скасувати</button></div>
+          <div class="toast toast--error" role="alert"><svg class="icon toast__icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10.3 4.4 2.9 17.3c-.8 1.3.2 3 1.7 3h14.8c1.5 0 2.5-1.7 1.7-3L13.7 4.4c-.8-1.3-2.6-1.3-3.4 0z"/><path d="M12 9.5v4"/><circle cx="12" cy="16.8" r=".9" fill="currentColor" stroke="none"/></svg><div class="toast__body"><p class="toast__title">Фото не завантажилось</p><p>Файл більший за 10 МБ. Стисніть його або зробіть нове.</p></div><button class="toast__close" aria-label="Закрити"><svg class="icon icon--sm" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+          <div class="toast toast--info" role="status"><svg class="icon toast__icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".9" fill="currentColor" stroke="none"/></svg><div class="toast__body">Немає зв’язку. Зміни збережемо, щойно з’явиться інтернет.</div></div>
+        </div>
+        <div class="alert alert--warning"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10.3 4.4 2.9 17.3c-.8 1.3.2 3 1.7 3h14.8c1.5 0 2.5-1.7 1.7-3L13.7 4.4c-.8-1.3-2.6-1.3-3.4 0z"/><path d="M12 9.5v4"/><circle cx="12" cy="16.8" r=".9" fill="currentColor" stroke="none"/></svg><div><p class="alert__title">2 учні мають борг</p>Нагадайте про оплату до наступного уроку.</div></div>
+        <div class="alert"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".9" fill="currentColor" stroke="none"/></svg><div>Це бета-версія. Якщо щось працює не так, натисніть «Відгук» унизу праворуч.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATES -->
+  <section class="sc-section" id="states">
+    <header><h2 class="h1">Порожні стани, завантаження, прогрес</h2></header>
+    <div class="grid-3">
+      <div class="empty">
+        <div class="empty__art"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3.5"/><path d="M2.8 19.5c.6-3.3 3.1-5.2 6.2-5.2s5.6 1.9 6.2 5.2"/><path d="M15.5 4.8a3.4 3.4 0 0 1 0 6.4"/><path d="M17.6 14.6c2 .6 3.3 2.3 3.7 4.9"/></svg></div>
+        <p class="empty__title">Тут з’являться ваші учні</p>
+        <p class="empty__text">Надішліть запрошення, і учень побачить розклад та завдання у своєму кабінеті.</p>
+        <button class="btn btn--primary"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg>Запросити учня</button>
+      </div>
+      <div class="card stack">
+        <div class="row"><span class="skeleton skeleton--circle" style="width:40px;height:40px"></span><div class="grow"><span class="skeleton skeleton--text" style="width:60%"></span><span class="skeleton skeleton--text" style="width:35%"></span></div></div>
+        <div class="row"><span class="skeleton skeleton--circle" style="width:40px;height:40px"></span><div class="grow"><span class="skeleton skeleton--text" style="width:70%"></span><span class="skeleton skeleton--text" style="width:30%"></span></div></div>
+        <span class="skeleton skeleton--block"></span>
+        <span class="sr-only" role="status">Завантаження…</span>
+      </div>
+      <div class="card stack stack--lg">
+        <div class="progress-labeled"><div class="progress-labeled__row"><span>Курс B1, модуль 4</span><strong>62%</strong></div><div class="progress" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" aria-label="Прогрес курсу" style="--value:62%"><div class="progress__bar"></div></div></div>
+        <div class="progress-labeled"><div class="progress-labeled__row"><span>Домашні цього тижня</span><strong>3 з 4</strong></div><div class="progress progress--hl" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" aria-label="Домашні цього тижня" style="--value:75%"><div class="progress__bar"></div></div></div>
+        <div><p class="sc-label">Кроки тесту</p><div class="steps" aria-label="Питання 4 з 8"><span class="steps__item steps__item--done"></span><span class="steps__item steps__item--done"></span><span class="steps__item steps__item--done"></span><span class="steps__item steps__item--current"></span><span class="steps__item"></span><span class="steps__item"></span><span class="steps__item"></span><span class="steps__item"></span></div></div>
+        <div class="row"><span class="spinner" role="status" aria-label="Завантаження"></span><span class="text-sm muted">Завантажуємо фото…</span></div>
+      </div>
+    </div>
+    <div>
+      <p class="sc-label">Кнопка «Відгук» (у застосунку закріплена праворуч унизу, на телефоні над нижнім меню)</p>
+      <div class="sc-demo-fab"><button class="feedback-fab" type="button"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 5.5c0-1.1.9-2 2-2h11c1.1 0 2 .9 2 2v9c0 1.1-.9 2-2 2H10l-4.5 4v-4h-1z"/><path d="M8.5 8.5h7M8.5 11.5h4.5"/></svg><span class="feedback-fab__label">Відгук</span></button></div>
+    </div>
+  </section>
+
+  <!-- CALENDAR -->
+  <section class="sc-section" id="calendar">
+    <header><h2 class="h1">Календар</h2><p class="muted">Тижнева сітка для ноутбука; на телефоні смуга днів і список уроків. Події позиціонуються змінними <code>--at</code> (година початку) та <code>--len</code> (тривалість у годинах).</p></header>
+    <div class="cal-toolbar">
+      <div class="cluster"><button class="btn btn--secondary btn--icon btn--sm" aria-label="Попередній тиждень"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m14.5 6-6 6 6 6"/></svg></button><button class="btn btn--secondary btn--icon btn--sm" aria-label="Наступний тиждень"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></button><span class="cal-toolbar__range">16–22 листопада</span></div>
+      <div class="cluster"><button class="btn btn--ghost btn--sm">Сьогодні</button><div class="segmented" role="radiogroup" aria-label="Вигляд"><label><input type="radio" name="calv"><span>День</span></label><label><input type="radio" name="calv" checked><span>Тиждень</span></label></div></div>
+    </div>
+    <div class="week" style="--from:8; --hours:12">
+      <div class="week__corner"></div>
+      <div class="week__day">Пн<span class="week__date">16</span></div>
+      <div class="week__day week__day--today" aria-current="date">Вт<span class="week__date">17</span></div>
+      <div class="week__day">Ср<span class="week__date">18</span></div>
+      <div class="week__day">Чт<span class="week__date">19</span></div>
+      <div class="week__day">Пт<span class="week__date">20</span></div>
+      <div class="week__day">Сб<span class="week__date">21</span></div>
+      <div class="week__day">Нд<span class="week__date">22</span></div>
+      <div class="week__times"><span class="week__time">08:00</span><span class="week__time">09:00</span><span class="week__time">10:00</span><span class="week__time">11:00</span><span class="week__time">12:00</span><span class="week__time">13:00</span><span class="week__time">14:00</span><span class="week__time">15:00</span><span class="week__time">16:00</span><span class="week__time">17:00</span><span class="week__time">18:00</span><span class="week__time">19:00</span></div>
+      <div class="week__col"><a class="event event--done" href="#" style="--at:9; --len:1"><span class="event__title">Олена П.</span><span class="event__time">09:00–10:00</span></a><a class="event" href="#" style="--at:17; --len:.75"><span class="event__title">Андрій С.</span><span class="event__time">17:00–17:45</span></a></div>
+      <div class="week__col week__col--today"><span class="week__now" style="--at:9.6" aria-hidden="true"></span><a class="event" href="#" style="--at:10; --len:1"><span class="event__title">Марія К.</span><span class="event__time">10:00–11:00</span></a><a class="event" href="#" style="--at:12; --len:.75"><span class="event__title">Дмитро І.</span><span class="event__time">12:00–12:45</span></a><a class="event event--compact" href="#" style="--at:13.5; --len:.5"><span class="event__title">Консультація</span><span class="event__time">13:30</span></a><a class="event event--cancelled" href="#" style="--at:15; --len:1"><span class="event__title">Ірина Л.</span><span class="event__time">Скасовано</span></a><a class="event event--group" href="#" style="--at:18.5; --len:1"><span class="event__title">Speaking Club</span><span class="event__time">18:30–19:30</span></a></div>
+      <div class="week__col"><a class="event" href="#" style="--at:8.5; --len:.75"><span class="event__title">Олена П.</span><span class="event__time">08:30–09:15</span></a><a class="event" href="#" style="--at:18.5; --len:.75"><span class="event__title">Андрій С.</span><span class="event__time">18:30–19:15</span></a></div>
+      <div class="week__col"><a class="event event--group" href="#" style="--at:19; --len:1"><span class="event__title">Speaking Club</span><span class="event__time">19:00–20:00</span></a></div>
+      <div class="week__col"><a class="event" href="#" style="--at:11; --len:1"><span class="event__title">Марія К.</span><span class="event__time">11:00–12:00</span></a></div>
+      <div class="week__col"></div>
+      <div class="week__col"></div>
+    </div>
+    <div class="card" style="max-width: 420px">
+      <div class="stack">
+        <div class="day-strip" role="tablist" aria-label="Дні тижня">
+          <button class="day-strip__day" role="tab" aria-selected="false">Пн<span class="day-strip__num">16</span><span class="day-strip__dots"><i></i><i></i></span></button>
+          <button class="day-strip__day day-strip__day--today" role="tab" aria-selected="true">Вт<span class="day-strip__num">17</span><span class="day-strip__dots"><i></i><i></i><i></i></span></button>
+          <button class="day-strip__day" role="tab" aria-selected="false">Ср<span class="day-strip__num">18</span><span class="day-strip__dots"><i></i><i></i></span></button>
+          <button class="day-strip__day" role="tab" aria-selected="false">Чт<span class="day-strip__num">19</span><span class="day-strip__dots"><i></i></span></button>
+          <button class="day-strip__day" role="tab" aria-selected="false">Пт<span class="day-strip__num">20</span><span class="day-strip__dots"><i></i></span></button>
+          <button class="day-strip__day" role="tab" aria-selected="false">Сб<span class="day-strip__num">21</span><span class="day-strip__dots"></span></button>
+          <button class="day-strip__day" role="tab" aria-selected="false">Нд<span class="day-strip__num">22</span><span class="day-strip__dots"></span></button>
+        </div>
+        <div class="day-list">
+          <div class="day-list__group">
+            <p class="day-list__heading">Сьогодні <small>вівторок, 17 листопада</small></p>
+            <a class="lesson lesson--now" href="#"><span class="lesson__time">10:00<small>60 хв</small></span><span class="lesson__body"><span class="lesson__title">Марія К.</span><span class="lesson__meta"><span class="level level--b1">B1</span>Present Perfect</span></span><span class="status status--scheduled">Скоро</span></a>
+            <a class="lesson" href="#"><span class="lesson__time">12:00<small>45 хв</small></span><span class="lesson__body"><span class="lesson__title">Дмитро І.</span><span class="lesson__meta"><span class="level level--a1">A1</span>To be: питання</span></span><svg class="icon muted" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></a>
+            <a class="lesson" href="#"><span class="lesson__time">15:00<small>60 хв</small></span><span class="lesson__body"><span class="lesson__title">Ірина Л.</span><span class="lesson__meta">Перенесено учнем</span></span><span class="status status--cancelled">Скасовано</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="sc-section" id="quiz">
+    <header><h2 class="h1">Тест</h2><p class="muted">Варіанти відповіді: звичайний, вибраний, правильний, неправильний. Стан підтверджено іконкою, не лише кольором.</p></header>
+    <div class="grid-2">
+      <div class="card quiz">
+        <div class="cluster cluster--between"><span class="quiz__counter">Питання 4 з 8</span><span class="badge badge--outline"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>06:12</span></div>
+        <div class="steps"><span class="steps__item steps__item--done"></span><span class="steps__item steps__item--done"></span><span class="steps__item steps__item--done"></span><span class="steps__item steps__item--current"></span><span class="steps__item"></span><span class="steps__item"></span><span class="steps__item"></span><span class="steps__item"></span></div>
+        <p class="quiz__question">I <span class="quiz__blank">&nbsp;</span> to London three times, but I’ve never seen Big Ben.</p>
+        <ul class="quiz__options" role="radiogroup" aria-label="Варіанти відповіді">
+          <li><button class="quiz-option" role="radio" aria-checked="false"><span class="quiz-option__key">A</span><span class="quiz-option__text">went</span></button></li>
+          <li><button class="quiz-option" role="radio" aria-checked="true"><span class="quiz-option__key">B</span><span class="quiz-option__text">have been</span></button></li>
+          <li><button class="quiz-option" role="radio" aria-checked="false"><span class="quiz-option__key">C</span><span class="quiz-option__text">have gone</span></button></li>
+          <li><button class="quiz-option" role="radio" aria-checked="false"><span class="quiz-option__key">D</span><span class="quiz-option__text">was</span></button></li>
+        </ul>
+        <button class="btn btn--primary btn--block">Перевірити</button>
+      </div>
+      <div class="card quiz">
+        <span class="quiz__counter">Питання 3 з 8</span>
+        <p class="quiz__question">She <span class="quiz__blank">has lived</span> here since 2019.</p>
+        <ul class="quiz__options">
+          <li><button class="quiz-option quiz-option--incorrect" disabled><span class="quiz-option__key">A</span><span class="quiz-option__text">lived</span><svg class="icon quiz-option__mark" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="m9 9 6 6M15 9l-6 6"/></svg><span class="sr-only">Ваша відповідь, неправильно</span></button></li>
+          <li><button class="quiz-option quiz-option--correct" disabled><span class="quiz-option__key">B</span><span class="quiz-option__text">has lived</span><svg class="icon quiz-option__mark" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="m8.3 12.3 2.6 2.6 5-5.3"/></svg><span class="sr-only">Правильна відповідь</span></button></li>
+          <li><button class="quiz-option" disabled><span class="quiz-option__key">C</span><span class="quiz-option__text">is living</span></button></li>
+        </ul>
+        <div class="quiz__feedback quiz__feedback--incorrect" role="status"><strong>Не зовсім</strong>Since 2019 вказує на дію, що триває досі, тому потрібен Present Perfect.</div>
+        <button class="btn btn--primary btn--block">Далі</button>
+      </div>
+    </div>
+    <div class="card score" style="max-width: 420px">
+      <span class="text-sm muted">Ваш результат</span>
+      <span class="score__value num">7<small> / 8</small></span>
+      <p class="muted">Present Perfect засвоєно. Перегляньте помилку в питанні 3.</p>
+    </div>
+  </section>
+
+  <!-- UPLOAD -->
+  <section class="sc-section" id="upload">
+    <header><h2 class="h1">Завантаження файлів</h2><p class="muted">Учні здають домашні з телефона: фото зошита, аудіо або документ.</p></header>
+    <div class="grid-2">
+      <div class="stack">
+        <label class="dropzone">
+          <input type="file" multiple accept="image/*,audio/*,.pdf,.doc,.docx" aria-describedby="dz-hint">
+          <span class="dropzone__icon"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 15.5V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4 15v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3"/></svg></span>
+          <span class="dropzone__title">Додайте фото або файл</span>
+          <span class="dropzone__hint" id="dz-hint">Перетягніть сюди чи натисніть. JPG, PNG, PDF, аудіо до 10 МБ.</span>
+        </label>
+        <ul class="thumbs">
+          <li class="thumb"><img alt="Сторінка зошита 1" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f7f3e3'/%3E%3Cg stroke='%2399b3d6' stroke-width='1'%3E%3Cpath d='M0 20h100M0 32h100M0 44h100M0 56h100M0 68h100M0 80h100'/%3E%3C/g%3E%3Cpath d='M12 18c10-4 20 3 30-1s16 2 24 0M12 30c14-3 26 2 40-1M12 42c8-2 18 2 28 0s12 1 22-1M12 54c12-3 22 2 34 0' stroke='%23233a7a' stroke-width='1.6' fill='none'/%3E%3C/svg%3E"><button class="thumb__remove" aria-label="Видалити фото 1"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button></li>
+          <li class="thumb thumb--uploading"><img alt="Сторінка зошита 2" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f7f3e3'/%3E%3Cg stroke='%2399b3d6' stroke-width='1'%3E%3Cpath d='M0 20h100M0 32h100M0 44h100M0 56h100M0 68h100'/%3E%3C/g%3E%3Cpath d='M12 18c12-3 24 2 36 0M12 30c10-2 18 2 30 0' stroke='%23233a7a' stroke-width='1.6' fill='none'/%3E%3C/svg%3E"><div class="thumb__progress"><div class="progress progress--sm" style="--value:45%"><div class="progress__bar"></div></div></div></li>
+          <li class="thumb"><div class="thumb__file"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3.5" y="14" width="4" height="6.5" rx="1.5"/><rect x="16.5" y="14" width="4" height="6.5" rx="1.5"/></svg>speaking.m4a</div><button class="thumb__remove" aria-label="Видалити speaking.m4a"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button></li>
+        </ul>
+      </div>
+      <div class="stack">
+        <label class="dropzone dropzone--error">
+          <input type="file" aria-describedby="dz2-err">
+          <span class="dropzone__icon"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 8.5c0-1.1.9-2 2-2h1.8l1.4-2h5.6l1.4 2H18c1.1 0 2 .9 2 2V18c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+          <span class="dropzone__title">Сфотографуйте сторінку</span>
+        </label>
+        <p class="error-text" id="dz2-err"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10.3 4.4 2.9 17.3c-.8 1.3.2 3 1.7 3h14.8c1.5 0 2.5-1.7 1.7-3L13.7 4.4c-.8-1.3-2.6-1.3-3.4 0z"/><path d="M12 9.5v4"/><circle cx="12" cy="16.8" r=".9" fill="currentColor" stroke="none"/></svg>Файл essay.heic не підтримується. Збережіть фото як JPG і додайте ще раз.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOCKUPS -->
+  <section class="sc-section" id="mockups">
+    <header><h2 class="h1">Макети</h2><p class="muted">Кабінет викладача на ноутбуці, головна учня на телефоні, вхід. Кожен макет живе в окремому iframe, тож працюють справжні медіазапити.</p></header>
+    <div class="sc-frame"><div class="sc-frame__bar"><i></i><i></i><i></i><span>Кабінет викладача, 1280 px</span></div><iframe title="Кабінет викладача" data-tpl="tpl-dashboard" style="height: 1320px"></iframe></div>
+    <div class="sc-phones">
+      <div class="sc-phone"><iframe title="Головна учня на телефоні" data-tpl="tpl-student"></iframe></div>
+      <div class="sc-phone"><iframe title="Вхід на телефоні" data-tpl="tpl-login"></iframe></div>
+    </div>
+    <div class="sc-frame"><div class="sc-frame__bar"><i></i><i></i><i></i><span>Вхід, ноутбук</span></div><iframe title="Вхід на ноутбуці" data-tpl="tpl-login" style="height: 760px"></iframe></div>
+  </section>
+</main>
+
+<!-- Live dialog -->
+<dialog class="modal" id="dlg-assign" aria-labelledby="dlg-assign-title">
+  <div class="sheet-handle" aria-hidden="true"></div>
+  <div class="modal__head"><h2 class="modal__title" id="dlg-assign-title">Призначити домашнє завдання</h2><button class="btn btn--ghost btn--icon modal__close" data-close aria-label="Закрити"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <form class="modal__body" method="dialog" id="dlg-form">
+    <div class="field"><label class="label" for="d-title">Назва</label><input class="input" id="d-title" value="Present Perfect: вправи 1–6"></div>
+    <div class="form__row">
+      <div class="field"><label class="label" for="d-who">Кому</label><select class="select" id="d-who"><option>Марія К.</option><option>Група Speaking Club</option></select></div>
+      <div class="field"><label class="label" for="d-due">Здати до</label><input class="input" id="d-due" type="date" value="2026-11-20"></div>
+    </div>
+    <div class="field"><label class="label" for="d-desc">Інструкція</label><textarea class="textarea" id="d-desc">Виконайте вправи 1–6 у зошиті й сфотографуйте сторінки.</textarea></div>
+    <label class="switch"><span>Дозволити здати після дедлайну</span><input type="checkbox" role="switch" checked></label>
+  </form>
+  <div class="modal__foot"><button class="btn btn--secondary" data-close>Скасувати</button><button class="btn btn--primary" data-close data-toast="success">Призначити</button></div>
+</dialog>
+
+<div class="toast-region" aria-live="polite" id="toasts"></div>
+
+<!-- ================= MOCKUP TEMPLATES ================= -->
+<template id="tpl-dashboard">
+<div class="app">
+  <aside class="sidebar">
+    <a class="brand sidebar__brand" href="#">
+      <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="bm-tile" width="40" height="40" rx="11"/><path class="bm-stroke" d="M14 11v18M14 21.5 22.5 29M14 20l7.2-6.6" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle class="bm-dot" cx="25.6" cy="11.4" r="3.6"/></svg>
+      <span class="brand__text"><span class="brand__name">Кмітливо</span><span class="brand__tag">Простір для вчителів і учнів</span></span>
+    </a>
+    <nav class="nav" aria-label="Головне меню">
+      <a class="nav__item" href="#" aria-current="page"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3.5 10.5 12 3.8l8.5 6.7"/><path d="M5.5 9v10.2c0 .4.4.8.8.8H10v-5.5h4V20h3.7c.4 0 .8-.4.8-.8V9"/></svg><span class="nav__label-text">Головна</span></a>
+      <a class="nav__item" href="#"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h2M14 14h2M8 17h2"/></svg><span class="nav__label-text">Розклад</span></a>
+      <a class="nav__item" href="#"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3.5"/><path d="M2.8 19.5c.6-3.3 3.1-5.2 6.2-5.2s5.6 1.9 6.2 5.2"/><path d="M15.5 4.8a3.4 3.4 0 0 1 0 6.4"/><path d="M17.6 14.6c2 .6 3.3 2.3 3.7 4.9"/></svg><span class="nav__label-text">Учні</span></a>
+      <a class="nav__item" href="#"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="4.5" width="14" height="16.5" rx="2.5"/><path d="M9 4.5V4c0-.6.4-1 1-1h4c.6 0 1 .4 1 1v.5c0 .6-.4 1-1 1h-4c-.6 0-1-.4-1-1z"/><path d="m9 13 2 2 4-4.5"/></svg><span class="nav__label-text">Домашні</span><span class="nav__count">7</span></a>
+      <a class="nav__item" href="#"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg><span class="nav__label-text">Тести</span></a>
+      <a class="nav__item" href="#"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11c.6 0 1 .4 1 1v15c0-.8-.7-1.5-1.5-1.5h-5C4.7 18.5 4 17.8 4 17z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H13c-.6 0-1 .4-1 1v15c0-.8.7-1.5 1.5-1.5h5c.8 0 1.5-.7 1.5-1.5z"/></svg><span class="nav__label-text">Матеріали</span></a>
+      <a class="nav__item" href="#"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 7.5V6c0-1.1-.9-2-2-2H5.5A2 2 0 0 0 3.5 6v12c0 1.1.9 2 2 2h13c1.1 0 2-.9 2-2v-8.5c0-1.1-.9-2-2-2H5.5"/><circle cx="16.5" cy="14" r="1.2" fill="currentColor" stroke="none"/></svg><span class="nav__label-text">Оплати</span></a>
+    </nav>
+    <div class="sidebar__footer">
+      <a class="nav__item" href="#"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M19.4 14.6c.2-.5.3-1.1.3-1.6v-2c0-.5-.1-1.1-.3-1.6l1.6-1.5-2-3.4-2.1.7a7.7 7.7 0 0 0-2.7-1.6L13.8 1.5h-3.6l-.4 2.1a7.7 7.7 0 0 0-2.7 1.6l-2.1-.7-2 3.4 1.6 1.5c-.2.5-.3 1.1-.3 1.6v2c0 .5.1 1.1.3 1.6L3 16.1l2 3.4 2.1-.7c.8.7 1.7 1.2 2.7 1.6l.4 2.1h3.6l.4-2.1c1-.4 1.9-.9 2.7-1.6l2.1.7 2-3.4z"/></svg><span class="nav__label-text">Налаштування</span></a>
+      <div class="sidebar__school"><span class="avatar avatar--sm avatar--3">ОМ</span><div class="grow"><div class="fw-600 truncate">Олена Мельник</div><div class="text-xs muted">Викладачка</div></div><button class="btn btn--ghost btn--icon btn--sm" aria-label="Вийти"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 4.5h3.5c1.1 0 2 .9 2 2v11c0 1.1-.9 2-2 2H14"/><path d="M10 8l-4 4 4 4M6 12h10"/></svg></button></div>
+    </div>
+  </aside>
+  <header class="topbar"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="bm-tile" width="40" height="40" rx="11"/><path class="bm-stroke" d="M14 11v18M14 21.5 22.5 29M14 20l7.2-6.6" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle class="bm-dot" cx="25.6" cy="11.4" r="3.6"/></svg><span class="avatar avatar--sm avatar--3">ОМ</span></header>
+  <main class="main">
+    <div class="page">
+      <div class="page-header">
+        <div class="page-header__titles"><h1 class="h1">Добрий ранок, Олено</h1><p class="page-header__meta">Вівторок, 17 листопада. Сьогодні 4 уроки, на перевірці 7 робіт.</p></div>
+        <div class="page-header__actions"><button class="btn btn--secondary"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.5 3.5 10 14"/><path d="m20.5 3.5-6.5 17-4-6.5-6.5-4z"/></svg>Призначити завдання</button><button class="btn btn--primary"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg>Новий урок</button></div>
+      </div>
+
+      <div class="grid-4">
+        <div class="stat"><span class="stat__label"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h2M14 14h2M8 17h2"/></svg>Уроків цього тижня</span><span class="stat__value">18</span><span class="stat__delta stat__delta--up"><svg class="icon icon--sm" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 14.5 6-6 6 6"/></svg>на 3 більше</span></div>
+        <div class="stat stat--attention"><span class="stat__label"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3.5 13.5 6 5.6c.2-.6.7-1.1 1.4-1.1h9.2c.7 0 1.2.5 1.4 1.1l2.5 7.9"/><path d="M3.5 13.5V18c0 1.1.9 2 2 2h13c1.1 0 2-.9 2-2v-4.5H15.5a3.5 3.5 0 0 1-7 0z"/></svg>Чекає на перевірку</span><span class="stat__value">7</span><span class="text-sm">2 прострочені</span></div>
+        <div class="stat"><span class="stat__label"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3.5"/><path d="M2.8 19.5c.6-3.3 3.1-5.2 6.2-5.2s5.6 1.9 6.2 5.2"/><path d="M15.5 4.8a3.4 3.4 0 0 1 0 6.4"/><path d="M17.6 14.6c2 .6 3.3 2.3 3.7 4.9"/></svg>Активні учні</span><span class="stat__value">15</span><span class="text-sm muted">3 у групі</span></div>
+        <div class="stat"><span class="stat__label"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 7.5V6c0-1.1-.9-2-2-2H5.5A2 2 0 0 0 3.5 6v12c0 1.1.9 2 2 2h13c1.1 0 2-.9 2-2v-8.5c0-1.1-.9-2-2-2H5.5"/><circle cx="16.5" cy="14" r="1.2" fill="currentColor" stroke="none"/></svg>Оплачено в листопаді</span><span class="stat__value num">12 400<span class="stat__unit">₴</span></span><span class="text-sm muted">2 учні мають борг</span></div>
+      </div>
+
+      <div class="split">
+        <div class="stack stack--lg">
+          <div class="card card--focus stack">
+            <div class="cluster cluster--between"><span class="text-sm muted">Наступний урок, через 25 хв</span><span class="level level--b1">B1</span></div>
+            <div class="row"><span class="avatar avatar--lg avatar--3">МК</span><div class="grow"><p class="h2">Марія Коваленко</p><p class="muted">10:00–11:00, Present Perfect vs Past Simple</p></div></div>
+            <div class="cluster"><button class="btn btn--primary"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="6" width="12.5" height="12" rx="2.5"/><path d="m15.5 10.5 5.5-3v9l-5.5-3"/></svg>Почати урок</button><button class="btn btn--ghost"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 3.5H7c-1.1 0-2 .9-2 2v13c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M9 13h6M9 16.5h4"/></svg>План уроку</button></div>
+          </div>
+
+          <section class="section">
+            <div class="section__head"><h2 class="h2">Сьогодні</h2><a class="link-btn" href="#">Увесь розклад<svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></a></div>
+            <div class="stack stack--sm">
+              <a class="lesson lesson--now" href="#"><span class="lesson__time">10:00<small>60 хв</small></span><span class="lesson__body"><span class="lesson__title">Марія К.</span><span class="lesson__meta"><span class="level level--b1">B1</span>Present Perfect</span></span><span class="status status--scheduled">Скоро</span></a>
+              <a class="lesson" href="#"><span class="lesson__time">12:00<small>45 хв</small></span><span class="lesson__body"><span class="lesson__title">Дмитро Іванов</span><span class="lesson__meta"><span class="level level--a1">A1</span>To be: питання й заперечення</span></span><span class="status status--scheduled">Заплановано</span></a>
+              <a class="lesson" href="#"><span class="lesson__time">15:00<small>60 хв</small></span><span class="lesson__body"><span class="lesson__title">Ірина Лисенко</span><span class="lesson__meta">Перенесено учнем на п’ятницю</span></span><span class="status status--cancelled">Скасовано</span></a>
+              <a class="lesson" href="#"><span class="lesson__time">18:30<small>60 хв</small></span><span class="lesson__body"><span class="lesson__title">Speaking Club</span><span class="lesson__meta"><span class="level level--b2">B2</span>5 учнів, Travel stories</span></span><span class="status status--scheduled">Заплановано</span></a>
+            </div>
+          </section>
+        </div>
+
+        <div class="stack stack--lg">
+          <section class="card card--flush">
+            <div class="card__head"><h2 class="card__title">Чекає на перевірку</h2><span class="badge badge--hl">7</span></div>
+            <ul class="list mt-2">
+              <li><a class="list-row" href="#"><span class="avatar avatar--sm avatar--2">АС</span><span class="list-row__body"><span class="list-row__title">Essay: My best trip</span><span class="list-row__meta"><span>Андрій С.</span><span>вчора</span></span><span class="mt-2"><span class="status status--submitted">Здано</span></span></span><span class="list-row__trail"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></span></a></li>
+              <li><a class="list-row" href="#"><span class="avatar avatar--sm avatar--4">ОП</span><span class="list-row__body"><span class="list-row__title">IELTS Writing Task 2</span><span class="list-row__meta"><span>Олена П.</span><span>2 дні тому</span></span><span class="mt-2"><span class="status status--submitted">Здано</span></span></span><span class="list-row__trail"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></span></a></li>
+              <li><a class="list-row" href="#"><span class="avatar avatar--sm avatar--5">ДІ</span><span class="list-row__body"><span class="list-row__title">Numbers 1–100</span><span class="list-row__meta"><span>Дмитро І.</span><span>до 15 лист.</span></span><span class="mt-2"><span class="status status--overdue">Прострочено</span></span></span><span class="list-row__trail"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></span></a></li>
+            </ul>
+            <div class="card__foot" style="margin:0;padding:var(--s-3) var(--s-5)"><a class="link-btn" href="#">Усі 7 робіт<svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></a></div>
+          </section>
+          <div class="alert alert--warning"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 7.5V6c0-1.1-.9-2-2-2H5.5A2 2 0 0 0 3.5 6v12c0 1.1.9 2 2 2h13c1.1 0 2-.9 2-2v-8.5c0-1.1-.9-2-2-2H5.5"/><circle cx="16.5" cy="14" r="1.2" fill="currentColor" stroke="none"/></svg><div><p class="alert__title">2 учні мають борг</p>Андрій С. і Ірина Л., разом 900 ₴.</div></div>
+        </div>
+      </div>
+
+      <section class="section">
+        <div class="section__head"><h2 class="h2">Учні</h2><a class="link-btn" href="#">Усі 15<svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></a></div>
+        <div class="table-wrap table-wrap--stack">
+          <table class="table table--stack">
+            <thead><tr><th>Учень</th><th>Рівень</th><th>Наступний урок</th><th>Домашнє</th><th class="num">Баланс</th></tr></thead>
+            <tbody>
+              <tr><td class="table__primary"><div class="row"><span class="avatar avatar--sm avatar--3">МК</span><span class="fw-600">Марія Коваленко</span></div></td><td data-label="Рівень"><span class="level level--b1">B1</span></td><td data-label="Наступний урок">Сьогодні, 10:00</td><td data-label="Домашнє"><span class="status status--graded">Оцінено</span></td><td data-label="Баланс" class="num">+900 ₴</td></tr>
+              <tr><td class="table__primary"><div class="row"><span class="avatar avatar--sm avatar--2">АС</span><span class="fw-600">Андрій Савчук</span></div></td><td data-label="Рівень"><span class="level level--a2">A2</span></td><td data-label="Наступний урок">Ср, 18:30</td><td data-label="Домашнє"><span class="status status--submitted">Здано</span></td><td data-label="Баланс" class="num c-danger">−450 ₴</td></tr>
+              <tr><td class="table__primary"><div class="row"><span class="avatar avatar--sm avatar--4">ОП</span><span class="fw-600">Олена Петренко</span></div></td><td data-label="Рівень"><span class="level level--c1">C1</span></td><td data-label="Наступний урок">Чт, 08:00</td><td data-label="Домашнє"><span class="status status--submitted">Здано</span></td><td data-label="Баланс" class="num">0 ₴</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+  <nav class="tabbar" aria-label="Головне меню"><a class="tabbar__item" href="#" aria-current="page"><span class="tabbar__icon"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3.5 10.5 12 3.8l8.5 6.7"/><path d="M5.5 9v10.2c0 .4.4.8.8.8H10v-5.5h4V20h3.7c.4 0 .8-.4.8-.8V9"/></svg></span>Головна</a><a class="tabbar__item" href="#"><span class="tabbar__icon"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h2M14 14h2M8 17h2"/></svg></span>Розклад</a><a class="tabbar__item" href="#"><span class="tabbar__icon"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3.5"/><path d="M2.8 19.5c.6-3.3 3.1-5.2 6.2-5.2s5.6 1.9 6.2 5.2"/><path d="M15.5 4.8a3.4 3.4 0 0 1 0 6.4"/><path d="M17.6 14.6c2 .6 3.3 2.3 3.7 4.9"/></svg></span>Учні</a><a class="tabbar__item" href="#"><span class="tabbar__icon"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="4.5" width="14" height="16.5" rx="2.5"/><path d="M9 4.5V4c0-.6.4-1 1-1h4c.6 0 1 .4 1 1v.5c0 .6-.4 1-1 1h-4c-.6 0-1-.4-1-1z"/><path d="m9 13 2 2 4-4.5"/></svg><span class="tabbar__dot"></span></span>Домашні</a><a class="tabbar__item" href="#"><span class="tabbar__icon"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h10"/></svg></span>Ще</a></nav>
+  <button class="feedback-fab" type="button"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 5.5c0-1.1.9-2 2-2h11c1.1 0 2 .9 2 2v9c0 1.1-.9 2-2 2H10l-4.5 4v-4h-1z"/><path d="M8.5 8.5h7M8.5 11.5h4.5"/></svg><span class="feedback-fab__label">Відгук</span></button>
+</div>
+</template>
+
+<template id="tpl-student">
+<div class="app">
+  <header class="topbar"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="bm-tile" width="40" height="40" rx="11"/><path class="bm-stroke" d="M14 11v18M14 21.5 22.5 29M14 20l7.2-6.6" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle class="bm-dot" cx="25.6" cy="11.4" r="3.6"/></svg><div class="cluster"><button class="btn btn--ghost btn--icon" aria-label="Сповіщення"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg></button><span class="avatar avatar--sm avatar--3">МК</span></div></header>
+  <main class="main">
+    <div class="page">
+      <div class="page-header__titles"><h1 class="h1">Привіт, Маріє</h1><p class="page-header__meta">Вівторок, 17 листопада</p></div>
+
+      <div class="card card--focus stack">
+        <div class="cluster cluster--between"><span class="text-sm muted">Урок сьогодні о 10:00</span><span class="level level--b1">B1</span></div>
+        <div class="row"><span class="avatar avatar--3">ОМ</span><div class="grow"><p class="h3">Present Perfect vs Past Simple</p><p class="text-sm muted">з Оленою Мельник, 60 хв</p></div></div>
+        <button class="btn btn--primary btn--block"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="6" width="12.5" height="12" rx="2.5"/><path d="m15.5 10.5 5.5-3v9l-5.5-3"/></svg>Приєднатися</button>
+      </div>
+
+      <section class="section">
+        <div class="section__head"><h2 class="h2">Домашні</h2><a class="link-btn" href="#">Усі<svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></a></div>
+        <ul class="list list--card">
+          <li><a class="list-row" href="#"><span class="list-row__lead"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 3.5H7c-1.1 0-2 .9-2 2v13c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M9 13h6M9 16.5h4"/></svg></span><span class="list-row__body"><span class="list-row__title">Present Perfect: вправи 1–6</span><span class="list-row__meta"><span class="status status--assigned">Призначено</span><span>до четверга, 20 лист.</span></span></span><span class="list-row__trail"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></span></a></li>
+          <li><a class="list-row" href="#"><span class="list-row__lead"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v2.5"/></svg></span><span class="list-row__body"><span class="list-row__title">Speaking: describe your room</span><span class="list-row__meta"><span class="status status--returned">Повернуто</span><span>Є коментар викладачки</span></span></span><span class="list-row__trail"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></span></a></li>
+          <li><a class="list-row" href="#"><span class="list-row__lead"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="4.5" width="14" height="16.5" rx="2.5"/><path d="M9 4.5V4c0-.6.4-1 1-1h4c.6 0 1 .4 1 1v.5c0 .6-.4 1-1 1h-4c-.6 0-1-.4-1-1z"/><path d="m9 13 2 2 4-4.5"/></svg></span><span class="list-row__body"><span class="list-row__title">Irregular verbs, part 1</span><span class="list-row__meta"><span class="status status--graded">Оцінено</span><span>11 / 12</span></span></span><span class="list-row__trail"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></span></a></li>
+        </ul>
+      </section>
+
+      <a class="card card--interactive stack stack--sm" href="#">
+        <div class="cluster cluster--between"><span class="h4">Тест: Present Perfect</span><span class="badge badge--outline"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>10 хв</span></div>
+        <p class="text-sm muted">8 питань. Підготуйтеся до сьогоднішнього уроку.</p>
+        <span class="link-btn">Почати тест<svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></span>
+      </a>
+
+      <div class="card stack">
+        <div class="cluster cluster--between"><span class="h4">Мій прогрес</span><span class="cluster" style="--gap:6px"><span class="level level--b1">B1</span><svg class="icon icon--sm muted" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span class="level level--b2">B2</span></span></div>
+        <div class="progress-labeled"><div class="progress-labeled__row"><span class="muted">Модуль 4 з 6</span><strong>62%</strong></div><div class="progress" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" aria-label="Прогрес до B2" style="--value:62%"><div class="progress__bar"></div></div></div>
+        <div class="grid-2" style="--gap: 8px">
+          <div class="card--quiet card" style="padding:12px 16px"><span class="text-xs muted">Уроків пройдено</span><div class="stat__value" style="font-size:24px">23</div></div>
+          <div class="card--quiet card" style="padding:12px 16px"><span class="text-xs muted">Середня оцінка</span><div class="stat__value" style="font-size:24px">10,4</div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <nav class="tabbar" aria-label="Головне меню"><a class="tabbar__item" href="#" aria-current="page"><span class="tabbar__icon"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3.5 10.5 12 3.8l8.5 6.7"/><path d="M5.5 9v10.2c0 .4.4.8.8.8H10v-5.5h4V20h3.7c.4 0 .8-.4.8-.8V9"/></svg></span>Головна</a><a class="tabbar__item" href="#"><span class="tabbar__icon"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h2M14 14h2M8 17h2"/></svg></span>Розклад</a><a class="tabbar__item" href="#"><span class="tabbar__icon"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="4.5" width="14" height="16.5" rx="2.5"/><path d="M9 4.5V4c0-.6.4-1 1-1h4c.6 0 1 .4 1 1v.5c0 .6-.4 1-1 1h-4c-.6 0-1-.4-1-1z"/><path d="m9 13 2 2 4-4.5"/></svg><span class="tabbar__dot"></span></span>Домашні</a><a class="tabbar__item" href="#"><span class="tabbar__icon"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg></span>Тести</a><a class="tabbar__item" href="#"><span class="tabbar__icon"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c.8-3.8 3.8-6 7.5-6s6.7 2.2 7.5 6"/></svg></span>Профіль</a></nav>
+  <button class="feedback-fab" type="button"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 5.5c0-1.1.9-2 2-2h11c1.1 0 2 .9 2 2v9c0 1.1-.9 2-2 2H10l-4.5 4v-4h-1z"/><path d="M8.5 8.5h7M8.5 11.5h4.5"/></svg><span class="feedback-fab__label">Відгук</span></button>
+</div>
+</template>
+
+<template id="tpl-login">
+<div class="auth">
+  <div class="auth__panel">
+    <form class="auth__form" onsubmit="return false">
+      <span class="brand brand--lg"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="bm-tile" width="40" height="40" rx="11"/><path class="bm-stroke" d="M14 11v18M14 21.5 22.5 29M14 20l7.2-6.6" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle class="bm-dot" cx="25.6" cy="11.4" r="3.6"/></svg><span class="brand__text"><span class="brand__name">Кмітливо</span><span class="brand__tag">Простір для вчителів і учнів</span></span></span>
+      <div class="stack stack--xs"><h1 class="h1">Вхід</h1><p class="muted">Уроки, домашні й прогрес в одному місці.</p></div>
+      <div class="field"><label class="label" for="l-email">Email</label><div class="input-wrap"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg><input class="input" id="l-email" type="email" autocomplete="email" placeholder="name@gmail.com"></div></div>
+      <div class="field">
+        <div class="cluster cluster--between"><label class="label" for="l-pass">Пароль</label><a class="link-btn" href="#">Забули пароль?</a></div>
+        <div class="input-wrap input-wrap--action"><input class="input" id="l-pass" type="password" autocomplete="current-password" value="password1"><button class="btn btn--ghost btn--icon input-wrap__action" type="button" aria-label="Показати пароль"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+      </div>
+      <label class="check"><input type="checkbox" checked><span class="check__body">Запам’ятати мене на цьому пристрої</span></label>
+      <button class="btn btn--primary btn--lg btn--block">Увійти</button>
+      <div class="auth__divider">або</div>
+      <button class="btn btn--secondary btn--block" type="button"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Увійти за посиланням з email</button>
+      <p class="text-sm muted text-center">Немає акаунта? Його створює ваш викладач чи школа, а ви отримуєте запрошення на email.</p>
+    </form>
+  </div>
+  <aside class="auth__aside">
+    <p class="auth__quote">Уроки, домашні й прогрес учнів в одному спокійному місці.</p>
+    <div class="card" style="max-width: 360px; color: var(--ink)">
+      <div class="row"><span class="avatar avatar--3">МК</span><div class="grow"><div class="fw-600">Марія К. здала роботу</div><div class="text-sm muted">Present Perfect: вправи 1–6</div></div><span class="status status--submitted">Здано</span></div>
+    </div>
+    <p class="text-sm" style="color:#B9D4C9">Для репетиторів і мовних шкіл. Бета-версія.</p>
+  </aside>
+</div>
+</template>
+
+<script>
+  // Showcase-only behaviour
+  const root = document.documentElement;
+  const head = `<!DOCTYPE html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/styles.css"></head><body>`;
+  function renderFrames() {
+    document.querySelectorAll('iframe[data-tpl]').forEach((f) => {
+      const tpl = document.getElementById(f.dataset.tpl);
+      f.srcdoc = head.replace('<html lang="uk">', `<html lang="uk" data-theme="${root.dataset.theme}">`) + tpl.innerHTML + '</body></html>';
+    });
+  }
+  renderFrames();
+  document.querySelectorAll('input[name="sc-theme"]').forEach((r) => r.addEventListener('change', () => { root.dataset.theme = r.value; renderFrames(); }));
+
+  document.querySelectorAll('[data-open]').forEach((b) => b.addEventListener('click', () => document.getElementById(b.dataset.open).showModal()));
+  document.querySelectorAll('dialog [data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+  document.querySelectorAll('dialog').forEach((d) => d.addEventListener('click', (e) => { if (e.target === d) d.close(); }));
+
+  const TOASTS = {
+    success: { cls: 'toast--success', icon: "<svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\"><circle cx=\"12\" cy=\"12\" r=\"8.5\"/><path d=\"m8.3 12.3 2.6 2.6 5-5.3\"/></svg>", title: 'Завдання призначено', text: 'Марія К. отримала сповіщення' },
+    error: { cls: 'toast--error', icon: "<svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M10.3 4.4 2.9 17.3c-.8 1.3.2 3 1.7 3h14.8c1.5 0 2.5-1.7 1.7-3L13.7 4.4c-.8-1.3-2.6-1.3-3.4 0z\"/><path d=\"M12 9.5v4\"/><circle cx=\"12\" cy=\"16.8\" r=\".9\" fill=\"currentColor\" stroke=\"none\"/></svg>", title: 'Не вдалося зберегти', text: 'Перевірте з’єднання й спробуйте ще раз.' },
+  };
+  document.querySelectorAll('[data-toast]').forEach((b) => b.addEventListener('click', () => {
+    const t = TOASTS[b.dataset.toast];
+    const el = document.createElement('div');
+    el.className = `toast ${t.cls}`;
+    el.setAttribute('role', b.dataset.toast === 'error' ? 'alert' : 'status');
+    el.innerHTML = t.icon.replace('<svg ', '<svg class="icon toast__icon" ') + `<div class="toast__body"><p class="toast__title">${t.title}</p><p>${t.text}</p></div><button class="toast__close" aria-label="Закрити">${"<svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M6 6l12 12M18 6 6 18\"/></svg>".replace('<svg ', '<svg class="icon icon--sm" ')}</button>`;
+    el.querySelector('.toast__close').onclick = () => el.remove();
+    document.getElementById('toasts').appendChild(el);
+    setTimeout(() => { el.classList.add('toast--leaving'); setTimeout(() => el.remove(), 220); }, 4000);
+  }));
+
+  // Quiz option demo
+  document.querySelectorAll('#quiz .quiz-option[role="radio"]').forEach((o) => o.addEventListener('click', () => {
+    o.closest('ul').querySelectorAll('.quiz-option').forEach((x) => x.setAttribute('aria-checked', 'false'));
+    o.setAttribute('aria-checked', 'true');
+  }));
+  // Chips & tabs demo
+  document.querySelectorAll('.chips .chip[aria-pressed]').forEach((c) => c.addEventListener('click', () => {
+    c.parentElement.querySelectorAll('.chip[aria-pressed]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+    c.setAttribute('aria-pressed', 'true');
+  }));
+  document.querySelectorAll('.tabs .tab').forEach((t) => t.addEventListener('click', () => {
+    t.parentElement.querySelectorAll('.tab').forEach((x) => x.setAttribute('aria-selected', 'false'));
+    t.setAttribute('aria-selected', 'true');
+  }));
+  document.querySelectorAll('.day-strip__day').forEach((t) => t.addEventListener('click', () => {
+    t.parentElement.querySelectorAll('.day-strip__day').forEach((x) => x.setAttribute('aria-selected', 'false'));
+    t.setAttribute('aria-selected', 'true');
+  }));
+</script>
+</body>
+</html>
