@@ -13,6 +13,7 @@ export const KIND = {
   file: { icon: 'camera', label: 'Фото або файл' },
   link: { icon: 'link', label: 'Матеріал за посиланням' },
   quiz: { icon: 'target', label: 'Тест' },
+  textbook: { icon: 'book', label: 'Сторінки підручника' },
 };
 export const kindOf = (t) => KIND[t.assignment?.kind] || KIND.text;
 export const scale = () => Number(state.space?.grade_scale) || 12;

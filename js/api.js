@@ -118,7 +118,7 @@ export async function addTargets(assignmentId, targets) {
 }
 
 // ---------------- targets / review ----------------
-const TARGET_SELECT = '*, assignment:assignments(id, title, kind, instructions, link_url, attachments, teacher_id, created_at), student:students(id, full_name, cefr_level, teacher_id)';
+const TARGET_SELECT = '*, assignment:assignments(id, title, kind, instructions, link_url, attachments, teacher_id, created_at, textbook_id, page_from, page_to), student:students(id, full_name, cefr_level, teacher_id)';
 /** Staff: targets in the space. opts: { status: string|array, studentId, teacherId } */
 export async function listTargets({ status = null, studentId = null, teacherId = null, limit = 500 } = {}) {
   let q = sb.from('assignment_targets').select(TARGET_SELECT).order('due_at', { ascending: true, nullsFirst: false }).limit(limit);
@@ -136,10 +136,11 @@ export async function listSubmissions(targetId) {
   return must(await sb.from('submissions').select('*').eq('target_id', targetId).order('attempt_no', { ascending: false }));
 }
 /** Staff grades or returns a target. action: 'grade' | 'return' */
-export async function reviewTarget(id, { action, score = null, feedback = '' }) {
+export async function reviewTarget(id, { action, score = null, feedback = '', emoji = null }) {
   const patch = action === 'grade'
     ? { status: 'graded', score, feedback, graded_at: new Date().toISOString() }
     : { status: 'returned', feedback };
+  if (emoji != null) patch.feedback_emoji = emoji;
   return must(await sb.from('assignment_targets').update(patch).eq('id', id).select().single());
 }
 export async function deleteTarget(id) { return must(await sb.from('assignment_targets').delete().eq('id', id)); }

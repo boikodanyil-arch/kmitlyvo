@@ -64,6 +64,7 @@ export default async function render({ view, params, alive }) {
         ${a.instructions ? html`<p class="pre-wrap tk-prose">${a.instructions}</p>` : html`<p class="muted text-sm">Без інструкції.</p>`}
         ${link ? html`<a class="tk-linkcard" href="${link}" target="_blank" rel="noopener noreferrer">${ic('link')}<span class="truncate">${link.replace(/^https?:\/\//, '')}</span>${ic('external', 'icon--sm')}</a>` : ''}
         ${a.attachments?.length ? html`<div class="stack stack--sm"><p class="label">Матеріали</p>${filesBlock(a.attachments)}</div>` : ''}
+        ${a.kind === 'textbook' && a.textbook_id ? html`<a class="tk-linkcard" href="#/t/books/${a.textbook_id}?p=${a.page_from || 1}">${ic('book')}<span class="truncate">Відкрити сторінки в підручнику</span>${ic('chevronRight', 'icon--sm')}</a>` : ''}
         ${a.kind === 'quiz' ? html`<div class="stack stack--sm"><p class="label">${quiz.length} ${plural(quiz.length, 'питання', 'питання', 'питань')} · правильні відповіді позначено</p>${quizBlock(quiz)}</div>` : ''}
       </div>
     </section>`;
@@ -215,6 +216,7 @@ export default async function render({ view, params, alive }) {
       }
       setLoading(submit, true);
       try {
+        if (a.kind === 'textbook' && a.textbook_id) { const { ensureAttached } = await import('../books-api.js'); for (const sid of selected) await ensureAttached(sid, a.textbook_id); }
         await api.addTargets(a.id, [...selected].map((sid) => ({ student_id: sid, due_at: due })));
         const n = selected.size;
         targets = sortTargets(await listAssignmentTargets(a.id));

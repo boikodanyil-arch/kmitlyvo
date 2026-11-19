@@ -1,5 +1,6 @@
 // #/t/assignments/new?student=ID&lesson=ID&from=ID: assignment builder.
 import * as api from '../api.js';
+import * as B from '../books-api.js';
 import { sb } from '../supabase.js';
 import { BUCKET } from '../config.js';
 import { state, isSchool } from '../state.js';
@@ -73,13 +74,14 @@ export default async function render({ view, query, alive }) {
     <div class="card hide-mobile"><span class="skeleton skeleton--text" style="width:70%"></span><span class="skeleton skeleton--text" style="width:50%"></span></div></div>
     <span class="sr-only" role="status">Завантаження…</span>`);
 
-  let students = []; let src = null; let srcQuiz = []; let lesson = null;
+  let students = []; let src = null; let srcQuiz = []; let lesson = null; let books = [];
   try {
-    [students, src, srcQuiz, lesson] = await Promise.all([
+    [students, src, srcQuiz, lesson, books] = await Promise.all([
       api.listStudents(),
       query.from ? api.getAssignment(query.from) : null,
       query.from ? api.getQuiz(query.from, { withKeys: true }).catch(() => []) : [],
       query.lesson ? api.getLesson(query.lesson).catch(() => null) : null,
+      B.listBooks().catch(() => []),
     ]);
   } catch (err) {
     if (!alive()) return;
@@ -99,10 +101,18 @@ export default async function render({ view, query, alive }) {
     selected: new Set(preStudent && students.some((s) => s.id === preStudent) ? [preStudent] : []),
     due: { preset: '7', date: addDays(todayKey(), 7), time: DEFAULT_TIME },
     lessonId: lesson?.id || null,
+    book: { id: query.book && books.some((x) => x.id === query.book) ? query.book : '', from: '', to: '' },
+    autoTitle: true,
     tried: false,
     busy: false,
   };
+  if (query.book && b.book.id) b.kind = 'textbook';
   if (src) {
+    b.autoTitle = false;
+    if (src.textbook_id && books.some((x) => x.id === src.textbook_id)) {
+      const sb0 = books.find((x) => x.id === src.textbook_id); const off = sb0.page_offset || 0;
+      b.book = { id: src.textbook_id, from: src.page_from ? String(src.page_from - off) : '', to: src.page_to ? String(src.page_to - off) : '' };
+    }
     b.kind = src.kind; b.title = src.title; b.instructions = src.instructions || ''; b.link_url = src.link_url || '';
     b.files = (src.attachments || []).map((f) => ({ key: uid().slice(0, 8), ...f, copy: true }));
     b.questions = srcQuiz.map((q) => ({
@@ -161,6 +171,22 @@ export default async function render({ view, query, alive }) {
               <ul class="thumbs tk-upthumbs" data-thumbs></ul>
             </div>
           </div>
+        </section>
+
+        <section class="card tk-sec" aria-labelledby="sec-book" data-book-sec hidden>
+          <h2 class="h3 tk-sec__title" id="sec-book">Сторінки підручника</h2>
+          ${books.length ? html`<div class="form">
+            <div class="field"><label class="label" for="b-book">Підручник</label>
+              <select class="select" id="b-book" name="book">
+                <option value="">Оберіть підручник</option>
+                ${raw(books.map((x) => `<option value="${x.id}" ${x.id === b.book.id ? 'selected' : ''}>${esc(x.title)} · ${esc((B.BOOK_KINDS[x.kind] || B.BOOK_KINDS.other).label)}${x.level ? ` · ${esc(x.level)}` : ''}</option>`).join(''))}
+              </select></div>
+            <div class="form__row">
+              <div class="field"><label class="label" for="b-pfrom">Зі сторінки</label><input class="input" id="b-pfrom" name="page_from" type="number" inputmode="numeric" value="${b.book.from}" placeholder="34"></div>
+              <div class="field"><label class="label" for="b-pto">По сторінку</label><input class="input" id="b-pto" name="page_to" type="number" inputmode="numeric" value="${b.book.to}" placeholder="35"></div>
+            </div>
+            <p class="hint" data-book-hint>Номери як у книжці. Учні відповідатимуть прямо на цих сторінках, а підручник автоматично закріпиться за обраними учнями.</p>
+          </div>` : emptyState({ plain: true, icon: 'book', title: 'Бібліотека підручників порожня', text: 'Завантажте PDF чи фото Student book або Workbook, позначте поля для відповідей і повертайтеся сюди.', action: html`<a class="btn btn--secondary" href="#/t/books">${ic('upload')}До підручників</a>` })}
         </section>
 
         <section class="card tk-sec" aria-labelledby="sec-quiz" data-quiz-sec hidden>
@@ -234,10 +260,13 @@ Yesterday I ___ to the cinema. | go, *went, gone</pre>
     file: ['Що сфотографувати чи записати. Учень зможе додати кілька фото або аудіо.', 'Наприклад: Виконайте вправи 1–4 на с. 34 і сфотографуйте сторінки.'],
     link: ['Що зробити за посиланням і що надіслати у відповідь.', 'Наприклад: Подивіться відео і випишіть 10 нових фраз.'],
     quiz: ['Короткий вступ перед питаннями.', 'Наприклад: Оберіть правильну форму дієслова. Одна спроба.'],
+    textbook: ['Що саме зробити на сторінках: які вправи, на що звернути увагу.', 'Наприклад: Вправи 1–3. У вправі 2 — повні речення.'],
   };
   function applyKind() {
     $('[data-link-field]').hidden = b.kind !== 'link';
     $('[data-quiz-sec]').hidden = b.kind !== 'quiz';
+    $('[data-book-sec]').hidden = b.kind !== 'textbook';
+    if (b.kind === 'textbook') autoTitle();
     $('[data-instr-hint]').textContent = INSTR[b.kind][0];
     $('#b-instr').placeholder = INSTR[b.kind][1];
     if (b.kind === 'quiz' && !b.questions.length) { b.questions.push(newQuestion()); renderQuestions(); }
@@ -245,12 +274,51 @@ Yesterday I ___ to the cinema. | go, *went, gone</pre>
   }
   form.addEventListener('change', (e) => {
     if (e.target.name === 'kind') { b.kind = e.target.value; applyKind(); }
+    if (['book', 'page_from', 'page_to'].includes(e.target.name)) onBookInput(e.target);
   });
+  form.addEventListener('input', (e) => { if (['page_from', 'page_to'].includes(e.target.name)) onBookInput(e.target); });
+  const curBook = () => books.find((x) => x.id === b.book.id) || null;
+  function onBookInput(t) {
+    if (t.name === 'book') b.book.id = t.value;
+    if (t.name === 'page_from') { b.book.from = t.value; if (!b.book.to || Number(b.book.to) < Number(t.value)) { b.book.to = t.value; const to = $('#b-pto'); if (to) to.value = t.value; } }
+    if (t.name === 'page_to') b.book.to = t.value;
+    if (b.tried) bookError();
+    autoTitle(); updateSummary();
+  }
+  function autoTitle() {
+    const bk = curBook();
+    if (!b.autoTitle || !bk) return;
+    const f = b.book.from, t2 = b.book.to;
+    const pages = f ? (t2 && t2 !== f ? `ст. ${f}–${t2}` : `ст. ${f}`) : '';
+    b.title = [bk.title, pages].filter(Boolean).join(', ');
+    const ti = $('#b-title'); if (ti) ti.value = b.title;
+  }
+  /** Validates the textbook section; returns the first bad element or null. */
+  function bookError() {
+    if (b.kind !== 'textbook') return null;
+    const bk = curBook();
+    if (!books.length) return $('[data-book-sec]');
+    fieldError(form, 'book', bk ? null : 'Оберіть підручник.');
+    if (!bk) return $('#b-book');
+    const off = bk.page_offset || 0; const min = 1 - off; const max = bk.page_count - off;
+    const f = parseInt(b.book.from, 10); const t2 = parseInt(b.book.to || b.book.from, 10);
+    let msg = null;
+    if (!Number.isFinite(f)) msg = 'Вкажіть сторінку.';
+    else if (f < min || f > max) msg = `У підручнику сторінки від ${Math.max(min, 1)} до ${max}.`;
+    fieldError(form, 'page_from', msg);
+    if (msg) return $('#b-pfrom');
+    let msg2 = null;
+    if (!Number.isFinite(t2) || t2 < f) msg2 = 'Не менше за першу сторінку.';
+    else if (t2 > max) msg2 = `Остання сторінка — ${max}.`;
+    else if (t2 - f > 29) msg2 = 'Не більше 30 сторінок в одному завданні.';
+    fieldError(form, 'page_to', msg2);
+    return msg2 ? $('#b-pto') : null;
+  }
 
   // ---------------- content fields ----------------
   form.addEventListener('input', (e) => {
     const t = e.target;
-    if (t.name === 'title') { b.title = t.value; if (b.tried) fieldError(form, 'title', t.value.trim() ? null : 'Дайте завданню назву.'); updateSummary(); }
+    if (t.name === 'title') { b.autoTitle = !t.value.trim(); b.title = t.value; if (b.tried) fieldError(form, 'title', t.value.trim() ? null : 'Дайте завданню назву.'); updateSummary(); }
     if (t.name === 'instructions') b.instructions = t.value;
     if (t.name === 'link_url') { b.link_url = t.value; if (b.tried) fieldError(form, 'link_url', linkError()); }
   });
@@ -514,6 +582,7 @@ Yesterday I ___ to the cinema. | go, *went, gone</pre>
       ['Тип', html`${ic(k.icon)}${k.label}`],
       ['Назва', b.title.trim() ? b.title.trim() : html`<span class="muted">не вказано</span>`],
       ...(b.kind === 'quiz' ? [['Питання', qn ? `${qn}` : html`<span class="muted">немає</span>`]] : []),
+      ...(b.kind === 'textbook' ? [['Сторінки', curBook() && b.book.from ? `${curBook().title}, ${b.book.to && b.book.to !== b.book.from ? `ст. ${b.book.from}–${b.book.to}` : `ст. ${b.book.from}`}` : html`<span class="muted">не обрано</span>`]] : []),
       ...(b.files.length ? [['Файли', `${b.files.length}`]] : []),
       ['Учні', n ? `${n}` : html`<span class="muted">не обрано</span>`],
       ['Дедлайн', iso ? `${fmtDateShort(iso)}, ${fmtTime(iso)}` : 'без дедлайну'],
@@ -539,6 +608,7 @@ Yesterday I ___ to the cinema. | go, *went, gone</pre>
       const firstBad = qlist.querySelector('.tk-qb--error');
       if (firstBad) bad.push(firstBad);
     }
+    const be = bookError(); if (be) bad.push(be);
     const de = dueError(); if (de) { fieldError(form, 'due_date', de); bad.push(dateIn); }
     return bad;
   }
@@ -566,6 +636,11 @@ Yesterday I ___ to the cinema. | go, *went, gone</pre>
         link_url: b.kind === 'link' ? safeUrl(b.link_url.trim()) : '',
         attachments: [], lesson_id: b.lessonId,
       };
+      if (b.kind === 'textbook') {
+        const bk = curBook(); const off = bk.page_offset || 0;
+        const f = parseInt(b.book.from, 10); const t2 = parseInt(b.book.to || b.book.from, 10);
+        Object.assign(a, { textbook_id: bk.id, page_from: f + off, page_to: t2 + off });
+      }
       const questions = b.kind === 'quiz' ? b.questions.map(toApi) : [];
       await api.createAssignment(a, questions, []);
       created = true;
@@ -594,6 +669,7 @@ Yesterday I ___ to the cinema. | go, *went, gone</pre>
 
       const due = dueIso();
       const targets = [...b.selected].map((sid) => ({ student_id: sid, due_at: due }));
+      if (targets.length && b.kind === 'textbook') { for (const t3 of targets) await B.ensureAttached(t3.student_id, a.textbook_id); }
       if (targets.length) await api.addTargets(id, targets);
 
       b.files.forEach((f) => f.preview && URL.revokeObjectURL(f.preview));

@@ -18,6 +18,7 @@ export const KINDS = {
   file: { label: 'Фото/файл', icon: 'camera', hint: 'Фото зошита, аудіо чи документ' },
   link: { label: 'Посилання', icon: 'link', hint: 'Відео, стаття або вправа на іншому сайті' },
   quiz: { label: 'Квіз', icon: 'checkCircle', hint: 'Тест з автоперевіркою і миттєвою оцінкою' },
+  textbook: { label: 'Підручник', icon: 'book', hint: 'Учень відповідає прямо на сторінках книжки' },
 };
 export const kindOf = (k) => KINDS[k] || KINDS.text;
 /** Small pill: icon + label */

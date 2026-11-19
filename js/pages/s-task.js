@@ -6,6 +6,7 @@ import { setTitle, setCount } from '../shell.js';
 import { esc, html, raw, fmtDate, fmtTime, safeUrl, isOverdue, plural, debounce } from '../utils.js';
 import { icon, avatar, targetStatus, emptyState, errorState, toast, toastError, openModal, confirmDialog, setLoading, on } from '../ui.js';
 import { kindOf, dueText, scale, fmtScore, teacherName } from './s-tasks.js';
+import * as B from '../books-api.js';
 
 // ---------------- drafts (localStorage, best effort) ----------------
 const draftKey = (id) => `kmitlyvo.draft.${id}`;
@@ -121,6 +122,7 @@ function workView(t, sub, urls) {
     ${when}
     ${kind === 'text' ? html`<div class="s-work__text pre-wrap">${text || '—'}</div><p class="text-xs muted">${wordCount(text)} ${plural(wordCount(text), 'слово', 'слова', 'слів')}</p>` : ''}
     ${kind === 'file' ? html`${filesBlock(sub.files || [], urls, { label: 'Здані файли' })}${text ? html`<div class="s-work__comment"><p class="text-xs muted">Коментар</p><p class="pre-wrap">${text}</p></div>` : ''}` : ''}
+    ${kind === 'textbook' ? html`<p class="text-sm">Відповіді — на сторінках підручника.</p>${text ? html`<div class="s-work__comment"><p class="text-xs muted">Коментар</p><p class="pre-wrap">${text}</p></div>` : ''}` : ''}
     ${kind === 'link' ? (text ? html`<div class="s-work__text pre-wrap">${text}</div>` : html`<p class="row text-sm">${raw(icon('checkCircle', 'icon--sm'))}Позначено як виконане</p>`) : ''}
   </div>`;
 }
@@ -129,7 +131,7 @@ function workView(t, sub, urls) {
 export default async function render({ view, params, alive }) {
   setTitle('Завдання');
   const id = params.id;
-  const S = { t: null, subs: [], questions: [], urls: {}, teacher: '' };
+  const S = { t: null, subs: [], questions: [], urls: {}, teacher: '', book: null, prog: null };
 
   view.innerHTML = String(raw(`<div class="s-task">
     <div class="page-header"><div class="page-header__titles"><span class="skeleton skeleton--text" style="width:90px"></span><span class="skeleton skeleton--title" style="width:70%"></span><span class="skeleton skeleton--text" style="width:50%"></span></div></div>
@@ -147,7 +149,13 @@ export default async function render({ view, params, alive }) {
     const paths = [...(t.assignment?.attachments || []), ...subs.flatMap((s) => s.files || [])].map((f) => f.path).filter(Boolean);
     const urls = {};
     await Promise.all([...new Set(paths)].map(async (p) => { urls[p] = await api.signedUrl(p); }));
-    Object.assign(S, { t, subs, questions, urls, teacher });
+    let book = null; let prog = null;
+    const ta = t.assignment;
+    if (ta?.kind === 'textbook' && ta.textbook_id) {
+      book = await B.getBook(ta.textbook_id).catch(() => null);
+      if (book) prog = await B.pagesProgress(book.id, t.student_id, ta.page_from || 1, ta.page_to || ta.page_from || 1).catch(() => null);
+    }
+    Object.assign(S, { t, subs, questions, urls, teacher, book, prog });
     return t;
   }
 
@@ -203,13 +211,13 @@ export default async function render({ view, params, alive }) {
       <div class="stack stack--lg">
         ${t.status === 'returned' ? html`<section class="s-banner s-banner--returned" aria-labelledby="ret-t">
           <div class="s-banner__head"><span class="s-banner__icon">${raw(icon('refresh'))}</span><div><h2 class="h3" id="ret-t">Повернуто на доопрацювання</h2><p class="text-sm muted">Виправте роботу і здайте ще раз — це нова спроба.</p></div></div>
-          ${t.feedback ? html`<div class="s-fb">${teacher ? html`<div class="row s-fb__who">${avatar(teacher, 'xs')}<span class="text-sm fw-600">${teacher}</span></div>` : ''}<p class="pre-wrap s-fb__text">${t.feedback}</p></div>` : ''}
+          ${t.feedback ? html`<div class="s-fb">${teacher ? html`<div class="row s-fb__who">${avatar(teacher, 'xs')}<span class="text-sm fw-600">${teacher}</span></div>` : ''}<p class="pre-wrap s-fb__text">${t.feedback_emoji ? html`<span class="fb-emoji">${t.feedback_emoji}</span> ` : ''}${t.feedback}</p></div>` : ''}
         </section>` : ''}
 
         ${t.status === 'graded' && !isQuiz ? html`<section class="card s-grade" aria-labelledby="gr-t">
           <div class="s-grade__score"><p class="s-label" id="gr-t">${raw(icon('star', 'icon--sm'))}Оцінка</p>
             <span class="score__value">${fmtScore(t.score)}<small> / ${scale()}</small></span></div>
-          ${t.feedback ? html`<div class="s-fb s-fb--plain">${teacher ? html`<div class="row s-fb__who">${avatar(teacher, 'xs')}<span class="text-sm fw-600">${teacher}</span></div>` : ''}<p class="pre-wrap s-fb__text">${t.feedback}</p></div>` : html`<p class="muted text-sm">Вчитель оцінив роботу без коментаря.</p>`}
+          ${t.feedback ? html`<div class="s-fb s-fb--plain">${teacher ? html`<div class="row s-fb__who">${avatar(teacher, 'xs')}<span class="text-sm fw-600">${teacher}</span></div>` : ''}<p class="pre-wrap s-fb__text">${t.feedback_emoji ? html`<span class="fb-emoji">${t.feedback_emoji}</span> ` : ''}${t.feedback}</p></div>` : t.feedback_emoji ? html`<p class="fb-emoji">${t.feedback_emoji}</p>` : html`<p class="muted text-sm">Вчитель оцінив роботу без коментаря.</p>`}
         </section>` : ''}
 
         ${t.status === 'submitted' ? html`<div class="alert s-wait">${raw(icon('clock'))}<div><p class="alert__title">Очікує перевірки</p>Роботу здано${latest ? ` ${fmtDate(latest.submitted_at)} о ${fmtTime(latest.submitted_at)}` : ''}. Вчитель перевірить її найближчим часом.</div></div>` : ''}
@@ -218,6 +226,7 @@ export default async function render({ view, params, alive }) {
           <p class="s-label" id="brief-t">${raw(icon('clipboard', 'icon--sm'))}Завдання від вчителя</p>
           ${a.instructions ? html`<p class="pre-wrap s-brief__text">${a.instructions}</p>` : html`<p class="muted">Вчитель не додав опису — орієнтуйтеся на назву та матеріали.</p>`}
           ${filesBlock(a.attachments || [], urls, { label: 'Матеріали від вчителя' })}
+          ${a.kind === 'textbook' ? bookCard() : ''}
           ${a.kind === 'link' && link ? html`<a class="btn btn--secondary btn--block s-brief__link" href="${link}" target="_blank" rel="noopener noreferrer">${raw(icon('external'))}Відкрити матеріал</a>` : ''}
         </section>
 
@@ -241,6 +250,7 @@ export default async function render({ view, params, alive }) {
       if (isQuiz) mountQuiz(host);
       else if (a.kind === 'file') mountFile(host);
       else if (a.kind === 'link') mountLink(host);
+      else if (a.kind === 'textbook') mountTextbook(host);
       else mountText(host);
     }
     if (fresh) view.querySelector('.s-qres')?.scrollIntoView({ block: 'start' });
@@ -267,6 +277,39 @@ export default async function render({ view, params, alive }) {
     window.scrollTo({ top: 0 });
     refreshTaskCount();
     return true;
+  }
+
+  // ---------------- textbook ----------------
+  function bookCard() {
+    const a = S.t.assignment || {}; const bk = S.book; const pr = S.prog;
+    if (!bk) return html`<div class="alert alert--warning">${raw(icon('alert'))}<div>Підручник для цього завдання недоступний. Напишіть вчителю.</div></div>`;
+    const range = B.rangeLabel(bk, a.page_from || 1, a.page_to || a.page_from || 1);
+    return html`<div class="s-bookcard">
+      <span class="book-row__icon book-row__icon--${bk.kind}" aria-hidden="true">${(B.BOOK_KINDS[bk.kind] || B.BOOK_KINDS.other).short}</span>
+      <div class="grow"><p class="fw-600">${bk.title}</p><p class="text-sm muted">${range}${pr && pr.fields ? ` · заповнено ${pr.filled} з ${pr.fields}` : ''}${pr && (pr.correct || pr.wrong) ? ` · ✓ ${pr.correct} ✗ ${pr.wrong}` : ''}</p></div>
+      <a class="btn btn--primary" href="#/s/books/${bk.id}?p=${a.page_from || 1}">${raw(icon('book'))}<span>Відкрити сторінки</span></a>
+    </div>`;
+  }
+  function mountTextbook(host) {
+    const d = loadDraft(id);
+    const pr = S.prog;
+    host.innerHTML = String(html`<form class="stack" data-form novalidate>
+      <p class="text-sm muted">Відповідайте прямо на сторінках підручника — все зберігається саме, а вчитель бачить відповіді одразу. Коли закінчите, натисніть «Здати».</p>
+      ${pr && pr.fields ? html`<div class="s-bookprog"><div class="upload-progress"><span style="width:${Math.round((pr.filled / pr.fields) * 100)}%"></span></div><span class="text-sm">Заповнено ${pr.filled} з ${pr.fields} полів</span></div>` : ''}
+      <div class="field">
+        <label class="label" for="tb-notes">Коментар для вчителя <span class="label__opt">(необов’язково)</span></label>
+        <textarea class="textarea" id="tb-notes" name="text" rows="3" placeholder="Наприклад: у вправі 3 не впевнена">${d.text || ''}</textarea>
+      </div>
+      <button class="btn btn--primary btn--lg btn--block" type="submit">${raw(icon('send'))}<span>Здати</span></button>
+    </form>`);
+    const form = host.querySelector('form'); const ta = form.querySelector('textarea');
+    ta.addEventListener('input', debounce(() => saveDraft(id, { text: ta.value }), 500));
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const empty = pr && pr.fields && pr.filled < pr.fields;
+      const ok = await confirmDialog({ title: 'Здати сторінки?', text: empty ? `Заповнено ${pr.filled} з ${pr.fields} полів. Все одно здати?` : 'Вчитель отримає роботу на перевірку.', confirmLabel: 'Здати' });
+      if (ok) await submit(form.querySelector('[type="submit"]'), { text: ta.value.trim() });
+    });
   }
 
   // ---------------- text ----------------

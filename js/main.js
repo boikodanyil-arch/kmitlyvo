@@ -35,12 +35,16 @@ const ROUTES = [
   ['/t/review', 'staff', 't-review'],
   ['/t/review/:id', 'staff', 't-review-item'],
   ['/t/payments', 'staff', 't-payments'],
+  ['/t/books', 'staff', 't-books'],
+  ['/t/books/:id', 'staff', 't-book'],
   ['/t/school', 'staff', 't-school'],
   ['/s', 'student', 's-home'],
   ['/s/tasks', 'student', 's-tasks'],
   ['/s/tasks/:id', 'student', 's-task'],
   ['/s/schedule', 'student', 's-schedule'],
   ['/s/progress', 'student', 's-progress'],
+  ['/s/books', 'student', 's-books'],
+  ['/s/books/:id', 'student', 's-book'],
   ['/settings', 'user', 'settings'],
   ['/more', 'staff', null],
 ];
@@ -101,6 +105,7 @@ function renderMore(view) {
   setTitle('Ще');
   const items = [
     ['#/t/assignments', 'clipboard', 'Завдання', 'Створення та призначення'],
+    ['#/t/books', 'book', 'Підручники', 'Student book і Workbook з відповідями на сторінках'],
     ['#/t/payments', 'wallet', 'Оплати', 'Баланс уроків і борги'],
     ...(isAdmin() && isSchool() ? [['#/t/school', 'school', 'Школа', 'Вчителі, учні, коди запрошень']] : []),
     ['#/settings', 'settings', 'Налаштування', 'Профіль, пароль, демо-дані'],

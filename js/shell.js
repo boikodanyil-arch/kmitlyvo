@@ -13,6 +13,7 @@ function staffNav() {
     { href: '#/t/calendar', icon: 'calendar', label: 'Розклад', match: /^\/t\/(calendar|lessons)/ },
     { href: '#/t/students', icon: 'users', label: 'Учні', match: /^\/t\/students/ },
     { href: '#/t/assignments', icon: 'clipboard', label: 'Завдання', match: /^\/t\/assignments/ },
+    { href: '#/t/books', icon: 'book', label: 'Підручники', match: /^\/t\/books/ },
     { href: '#/t/review', icon: 'inbox', label: 'Перевірка', match: /^\/t\/review/, countKey: 'review' },
     { href: '#/t/payments', icon: 'wallet', label: 'Оплати', match: /^\/t\/payments/ },
   ];
@@ -23,15 +24,16 @@ function studentNav() {
   return [
     { href: '#/s', icon: 'home', label: 'Головна', match: /^\/s\/?$/ },
     { href: '#/s/tasks', icon: 'clipboard', label: 'Завдання', match: /^\/s\/tasks/, countKey: 'tasks' },
+    { href: '#/s/books', icon: 'book', label: 'Підручник', match: /^\/s\/books/ },
     { href: '#/s/schedule', icon: 'calendar', label: 'Розклад', match: /^\/s\/schedule/ },
     { href: '#/s/progress', icon: 'trophy', label: 'Прогрес', match: /^\/s\/progress/ },
   ];
 }
 /** Tab bar (max 5): staff gets Головна, Розклад, Учні, Перевірка, Ще(menu) */
 function tabItems(nav) {
-  if (state.role === 'student') return [...nav, { href: '#/settings', icon: 'user', label: 'Профіль', match: /^\/settings/ }];
+  if (state.role === 'student') return nav; // профіль — через аватар у верхній панелі
   const pick = ['#/t', '#/t/calendar', '#/t/students', '#/t/review'];
-  return [...nav.filter((n) => pick.includes(n.href)), { href: '#/more', icon: 'menu', label: 'Ще', match: /^\/(more|t\/assignments|t\/payments|t\/school|settings)/ }];
+  return [...nav.filter((n) => pick.includes(n.href)), { href: '#/more', icon: 'menu', label: 'Ще', match: /^\/(more|t\/assignments|t\/books|t\/payments|t\/school|settings)/ }];
 }
 
 export const counts = { review: 0, tasks: 0 };

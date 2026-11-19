@@ -72,3 +72,11 @@ Only if the design system lacks something: put it in your own file `assets/css/<
 - `node --check` every JS file you wrote (syntax). Imports must reference existing exports.
 - Grep your files for `innerHTML` and confirm user data is escaped.
 - Final report: files created, any assumptions, any requested core changes, anything unfinished.
+
+## Підручники (textbooks)
+- Таблиці: `textbooks`, `student_textbooks`, `textbook_fields`, `textbook_answers`, `textbook_notes`; bucket `books` (приватний, 50 МБ, шлях `<space_id>/<textbook_id>/<файл>`).
+- Реальний час: `textbook_answers`, `textbook_notes`, `textbook_fields` у публікації `supabase_realtime`; присутність через канал `tb:<book>:<student>`.
+- Тригери-охоронці не дають учню змінити оцінку/виправлення/коментар/емодзі; зміна відповіді учнем скидає статус на «answered».
+- Сторінки: `#/t/books`, `#/t/books/:id?student=&p=`, `#/s/books`, `#/s/books/:id?p=`. Ядро — `js/components/book-viewer.js` (pdf.js з jsDelivr).
+- Номери сторінок у БД — індекси PDF; `page_offset` перетворює їх на друковані номери книжки.
+- Завдання типу `textbook`: `assignments.textbook_id`, `page_from`, `page_to` (індекси PDF). Емодзі до оцінки: `assignment_targets.feedback_emoji`.

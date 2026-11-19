@@ -9,8 +9,9 @@ import { setTitle } from '../shell.js';
 import { openStudentForm, inviteBlock, bindInvite } from '../components/student-form.js';
 import { openPaymentForm, balanceChip, bal, lessonsWord } from '../components/payment-form.js';
 import { openLessonForm } from '../components/lesson-form.js';
+import { mountStudentBooks } from '../components/student-books.js';
 
-const TABS = [['overview', 'Огляд'], ['lessons', 'Уроки'], ['tasks', 'Завдання'], ['payments', 'Оплати'], ['progress', 'Прогрес']];
+const TABS = [['overview', 'Огляд'], ['lessons', 'Уроки'], ['tasks', 'Завдання'], ['books', 'Підручники'], ['payments', 'Оплати'], ['progress', 'Прогрес']];
 const STATUS_LABEL = { active: 'Активний', paused: 'Пауза', archived: 'Архів' };
 const cur = () => state.space?.currency || '₴';
 const scale = () => state.space?.grade_scale || 12;
@@ -85,6 +86,7 @@ export default async function render({ view, params, query, alive }) {
       ${dangerZone()}`);
     bindInvite(view.querySelector('[data-account]') || view, () => st);
     if (tab === 'overview') bindOverview();
+    if (tab === 'books') mountStudentBooks(view.querySelector('[data-student-books]'), st);
     window.scrollTo(0, scrollY);
   }
 
@@ -103,6 +105,7 @@ export default async function render({ view, params, query, alive }) {
       if (on_) p.innerHTML = String(panel(k));
     });
     if (k === 'overview') bindOverview();
+    if (k === 'books') mountStudentBooks(view.querySelector('[data-student-books]'), st);
   }
 
   // ------------------------------------------------------------ header
@@ -176,6 +179,7 @@ export default async function render({ view, params, query, alive }) {
     if (k === 'lessons') return lessonsPanel();
     if (k === 'tasks') return tasksPanel();
     if (k === 'payments') return paymentsPanel();
+    if (k === 'books') return html`<div data-student-books></div>`;
     return progressPanel();
   }
 

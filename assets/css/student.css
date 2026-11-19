@@ -306,3 +306,4 @@ a.s-task-row--overdue:hover { background: var(--danger-soft); }
 @media (prefers-reduced-motion: reduce) {
   .s-quiz__card, .s-pop, .s-qres--fresh .s-qres__badge, .s-qres--fresh .score__value, .s-next .badge--hl .icon { animation: none !important; }
 }
+.s-kind--textbook { background: var(--b2-bg); color: var(--b2-fg); }

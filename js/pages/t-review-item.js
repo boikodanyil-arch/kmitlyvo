@@ -7,6 +7,7 @@ import { html, raw, plural, fmtDate, fmtTime, fmtDateShort, relDay, dueLabel, is
 import { pageHeader, emptyState, errorState, toast, toastError, on, avatar, levelBadge, targetStatus, setLoading, fieldError, clearErrors } from '../ui.js';
 import { ic, kindOf, kindTag, scale, scoreText, filesBlock, hydrateFiles, bindLightbox, quizBlock } from './t-assignments.js';
 import { loadInbox, queueOf, reviewScope } from './t-review.js';
+import * as B from '../books-api.js';
 
 const PHRASES = ['Чудова робота!', 'Молодець, є прогрес.', 'Зверни увагу на часи.', 'Перевір артиклі.', 'Перепиши, будь ласка, з виправленнями.'];
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
@@ -35,7 +36,7 @@ function submissionHtml(sub, { target, quiz }) {
     ${sub.text_answer ? html`<div class="tk-answer"><p class="pre-wrap">${sub.text_answer}</p><p class="tk-answer__count">${wordCount(sub.text_answer)} ${plural(wordCount(sub.text_answer), 'слово', 'слова', 'слів')}</p></div>` : ''}
     ${sub.files?.length ? filesBlock(sub.files) : ''}
     ${kind === 'quiz' ? (quiz.length ? quizBlock(quiz, res || { per: {} }) : html`<p class="muted">Питання квізу недоступні.</p>`) : ''}
-    ${!sub.text_answer && !sub.files?.length && kind !== 'quiz' ? html`<p class="muted">Учень надіслав порожню відповідь.</p>` : ''}`;
+    ${!sub.text_answer && !sub.files?.length && !['quiz', 'textbook'].includes(kind) ? html`<p class="muted">Учень надіслав порожню відповідь.</p>` : ''}`;
 }
 
 export default async function render({ view, params, alive }) {
@@ -69,6 +70,13 @@ export default async function render({ view, params, alive }) {
 
   const a = target.assignment || {};
   const st = target.student || {};
+  let book = null; let prog = null;
+  if (a.kind === 'textbook' && a.textbook_id) {
+    book = await B.getBook(a.textbook_id).catch(() => null);
+    if (book) prog = await B.pagesProgress(book.id, target.student_id, a.page_from || 1, a.page_to || a.page_from || 1).catch(() => null);
+    if (!alive()) return;
+  }
+  let fbEmoji = target.feedback_emoji || '';
   const max = scale();
   const latest = subs[0] || null;
   const older = subs.slice(1);
@@ -104,6 +112,12 @@ export default async function render({ view, params, alive }) {
 
         <section class="card tk-work" aria-labelledby="work-h">
           <div class="card__head"><h2 class="h3" id="work-h">Відповідь учня</h2>${targetStatus(target)}</div>
+          ${book ? html`<div class="s-bookcard">
+            <span class="book-row__icon book-row__icon--${book.kind}" aria-hidden="true">${(B.BOOK_KINDS[book.kind] || B.BOOK_KINDS.other).short}</span>
+            <div class="grow"><p class="fw-600">${book.title}, ${B.rangeLabel(book, a.page_from || 1, a.page_to || a.page_from || 1)}</p>
+              <p class="text-sm muted">${prog && prog.fields ? `Заповнено ${prog.filled} з ${prog.fields} · ✓ ${prog.correct} · ✗ ${prog.wrong}` : 'На цих сторінках немає полів — дивіться нотатки учня'}</p></div>
+            <a class="btn btn--primary" href="#/t/books/${book.id}?student=${target.student_id}&p=${a.page_from || 1}">${ic('edit')}<span>Відкрити зошит учня</span></a>
+          </div>` : ''}
           ${latest ? submissionHtml(latest, { target, quiz })
             : emptyState({ plain: true, icon: 'clock', title: 'Учень ще не здав роботу', text: target.due_at ? `Дедлайн: ${fmtDate(target.due_at)}, ${fmtTime(target.due_at)}${isOverdue(target) ? ' — вже минув.' : '.'}` : 'Дедлайну немає.' })}
         </section>
@@ -130,6 +144,9 @@ export default async function render({ view, params, alive }) {
             <label class="label" for="g-fb">Коментар для учня <span class="label__opt">(необовʼязково)</span></label>
             <textarea class="textarea" id="g-fb" name="feedback" rows="4" maxlength="4000" placeholder="Що вдалося, над чим попрацювати">${initialFeedback}</textarea>
             <div class="chips tk-chips-tight" role="group" aria-label="Швидкі фрази">${PHRASES.map((p) => html`<button class="chip" type="button" data-phrase="${p}">${ic('plus', 'icon--sm')}${p}</button>`)}</div>
+          </div>
+          <div class="field"><p class="label" id="g-emo-l">Емодзі <span class="label__opt">(учень побачить біля коментаря)</span></p>
+            <div class="bv-emojis" role="radiogroup" aria-labelledby="g-emo-l" data-fb-emojis>${raw(['', ...B.EMOJIS].map((e) => `<button type="button" class="bv-emoji${e === fbEmoji ? ' is-on' : ''}" data-fbemoji="${e}" role="radio" aria-checked="${e === fbEmoji}" aria-label="${e || 'Без емодзі'}">${e || '∅'}</button>`).join(''))}</div>
           </div>
           <div class="stack stack--sm">
             <button class="btn btn--primary btn--block btn--lg" type="submit" data-grade><span data-grade-label>${isRegrade ? 'Зберегти оцінку' : 'Оцінити'}</span></button>
@@ -184,6 +201,10 @@ export default async function render({ view, params, alive }) {
     fbIn.focus(); fbIn.setSelectionRange(fbIn.value.length, fbIn.value.length);
   });
   fbIn.addEventListener('input', () => fieldError(form, 'feedback', null));
+  on(form, '[data-fbemoji]', (e, c) => {
+    fbEmoji = c.dataset.fbemoji;
+    form.querySelectorAll('[data-fbemoji]').forEach((x) => { const onn = x === c; x.classList.toggle('is-on', onn); x.setAttribute('aria-checked', String(onn)); });
+  });
 
   async function goNext() {
     const q = (await queueP).filter((t) => t.id !== target.id);
@@ -213,7 +234,7 @@ export default async function render({ view, params, alive }) {
     const btn = form.querySelector('[data-grade]');
     busy = true; setLoading(btn, true);
     try {
-      const updated = await api.reviewTarget(target.id, { action: 'grade', score, feedback: fbIn.value.trim() });
+      const updated = await api.reviewTarget(target.id, { action: 'grade', score, feedback: fbIn.value.trim(), emoji: fbEmoji });
       if (wasSubmitted) gradedThisSession += 1;
       if (isRegrade) {
         toast('Оцінку змінено', { text: `${st.full_name}: ${scoreText(score)}` });
@@ -242,7 +263,7 @@ export default async function render({ view, params, alive }) {
     }
     busy = true; setLoading(btn, true);
     try {
-      await api.reviewTarget(target.id, { action: 'return', feedback });
+      await api.reviewTarget(target.id, { action: 'return', feedback, emoji: fbEmoji });
       toast('Роботу повернуто на доопрацювання', { text: `${st.full_name} побачить ваш коментар.` });
       if (wasSubmitted) await goNext();
       else if (alive()) navigate(`/t/review/${target.id}`);

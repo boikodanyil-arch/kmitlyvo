@@ -49,14 +49,15 @@ export default async function render({ view, alive }) {
   const from = new Date(now.getTime() - 4 * 3600000).toISOString();
   const to = fromZoned(addDays(todayKey(), 90)).toISOString();
 
-  let lessons; let past; let targets; let teacher; let subs;
+  let lessons; let past; let targets; let teacher; let subs; let books = [];
   try {
-    [lessons, past, targets, teacher, subs] = await Promise.all([
+    [lessons, past, targets, teacher, subs, books] = await Promise.all([
       api.listLessons(from, to, { studentId: sid }),
       api.listStudentLessons(sid, { limit: 20 }),
       api.listTargets(),
       teacherName(),
       firstSubmissions(),
+      import('../books-api.js').then((m) => m.myBooks()).catch(() => []),
     ]);
   } catch (err) {
     if (!alive()) return;
@@ -94,6 +95,12 @@ export default async function render({ view, alive }) {
             <span class="s-nolesson__icon">${raw(icon('calendar'))}</span>
             <div><p class="fw-600">Наступний урок ще не заплановано</p><p class="text-sm muted">Щойно вчитель додасть його в розклад, він з’явиться тут.</p></div>
           </section>`}
+
+        ${books.length ? html`<section class="s-bookcard s-home-book" aria-label="Мій підручник">
+            <span class="book-row__icon book-row__icon--${books[0].textbook.kind}" aria-hidden="true">${books[0].textbook.kind === 'workbook' ? 'WB' : books[0].textbook.kind === 'student_book' ? 'SB' : '•'}</span>
+            <div class="grow"><p class="fw-600">${books.length > 1 ? 'Мої підручники' : books[0].textbook.title}</p><p class="text-sm muted">${books.length > 1 ? books.map((r) => r.textbook.title).join(', ') : 'Відповідайте прямо на сторінках'}</p></div>
+            <a class="btn btn--secondary" href="${books.length > 1 ? '#/s/books' : `#/s/books/${books[0].textbook_id}`}">${raw(icon('book'))}<span>Відкрити</span></a>
+          </section>` : ''}
 
         <section class="section" aria-labelledby="todo-h">
           <div class="section__head"><h2 class="h2" id="todo-h">До здачі${todo.length ? html` <span class="s-count">${todo.length}</span>` : ''}</h2>${todo.length ? html`<a class="link-btn" href="#/s/tasks">Усі завдання${raw(icon('chevronRight'))}</a>` : ''}</div>
